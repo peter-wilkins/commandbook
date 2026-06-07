@@ -128,3 +128,19 @@ This keeps the terms tight:
 - Mutations create side effects.
 - The planner finds the route.
 - The runner executes the approved route.
+
+## Implementation Stance
+
+Borrow Pathom's ideas before borrowing Pathom itself.
+
+Pathom is a strong reference model for fact-oriented planning, but shipping
+ClojureScript and Pathom in the first local-first runtime would add weight and
+tooling risk. The first implementation should be a small TypeScript subset with
+Commandbook's safety model built in.
+
+Useful Pathom-inspired compatibility work:
+
+- keep small planning fixtures based on Pathom examples
+- compare expected reachable facts and route choices
+- optionally run Pathom locally as a golden-master oracle during development
+- avoid making Pathom a browser, phone, or CLI runtime dependency in V1

@@ -37,6 +37,13 @@ Command arguments follow the familiar CLI model: they can be required or
 optional, and they can have defaults. Supplied command arguments become facts in
 the initial context.
 
+### Command Recipe
+
+A reusable data description of how a command may be planned or run.
+
+A recipe is shared and inspectable, but each run may differ because the local
+device, installed tools, permissions, cached routes, and human choices differ.
+
 ### Initial Context
 
 The set of facts available at the start of planning.
@@ -302,6 +309,28 @@ The shared open-source home for generic Commandbook pieces.
 The shared registry should contain publishable contracts, drivers, tests,
 examples, and docs. It must not contain Peter-specific private facts,
 credentials, or raw captures.
+
+### Local Runtime
+
+The device-local Commandbook process that plans and runs commands.
+
+The local runtime should not require a central backend. It may fetch recipes from
+a shared registry, but command execution and run state belong locally first.
+
+### Run Store
+
+The durable local store for coffee grinder run state.
+
+A run store can be implemented with localStorage, IndexedDB, SQLite, files, or
+Postgres. The important contract is durable key-value access to serialized run
+state, not a particular database.
+
+### Storage Adapter
+
+The platform-specific implementation of the run store.
+
+Examples include browser localStorage, browser IndexedDB, native SQLite, JSONL
+files, or Postgres.
 
 ### Device
 

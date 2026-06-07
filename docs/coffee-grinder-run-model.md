@@ -6,6 +6,11 @@ It exists because real-world automation does not run in one clean pass. It hits
 missing facts, missing permissions, setup work, credentials, payments, network
 failures, human decisions, and partially completed side effects.
 
+The coffee grinder should be local-first. It must not require a central backend
+to run. A server or Postgres install may be one storage adapter, but the model
+should also work in a browser, phone app, or Linux CLI with local durable
+storage.
+
 ## Responsibilities
 
 The coffee grinder owns:
@@ -72,6 +77,26 @@ available at the start.
 
 The run state should be durable enough to survive process death.
 
+Durability means "written through a run store", not "stored in a backend".
+
+The first storage contract can be key-value shaped:
+
+```text
+key:   runs/<command>/<timestamp>_<short-id>
+value: serialized coffee grinder state
+```
+
+Different platforms can choose different storage adapters:
+
+- browser/PWA: localStorage for the smallest prototype, IndexedDB once values or
+  history grow
+- native phone: SQLite or files
+- Linux CLI: JSONL/files or SQLite
+- server install: Postgres/Supabase if that improves a particular deployment
+
+Queued work should be stored as data, not function closures, so the state can be
+serialized and resumed.
+
 Minimum useful state:
 
 ```yaml
@@ -96,6 +121,9 @@ human_requirements: []
 failed_paths: []
 status: paused_for_approval
 ```
+
+For a local-first runner, this whole value should be enough to explain what the
+run is doing and resume it after restart.
 
 ## Statuses
 
@@ -232,6 +260,15 @@ Human requirements should include:
 - where it will be used
 - whether it is secret
 - how to resume
+
+Human requirements should carry a high planner cost.
+
+The planner should prefer safe automatic routes over interrupting the human, but
+human pause cost is not infinite. Some actions are safer or more honest when the
+human performs the final step.
+
+Final verification is different. Ending a graph with "Are you happy?" is a cheap
+and useful feedback loop.
 
 ## Permission Model
 

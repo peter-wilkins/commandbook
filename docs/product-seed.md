@@ -68,6 +68,9 @@ Drivers are captured in [`docs/driver-contract.md`](driver-contract.md).
 Configuration changes are captured in
 [`docs/configuration-change-model.md`](configuration-change-model.md).
 
+Local-first implementation direction is captured in
+[`docs/local-first-implementation-strategy.md`](local-first-implementation-strategy.md).
+
 Resumable setup graphs are captured in
 [`docs/resumable-setup-graphs.md`](resumable-setup-graphs.md).
 
@@ -190,13 +193,23 @@ If a user has 50 commands they genuinely use every week, the commandbook becomes
 a valuable personal dataset: a machine-readable description of how a real person
 wants technology to help them.
 
+## Implementation Direction
+
+Commandbook should run locally first.
+
+GitHub or another shared registry can distribute recipes, contracts, tests, and
+drivers, but command execution should not require a central backend. The coffee
+grinder should persist run state through a small local run-store abstraction.
+
+Linux should be the first implementation target because it removes phone
+deployment friction and makes the coffee grinder/planner loop easier to test.
+
 ## Early Questions For Grilling
 
 1. Is Commandbook a standalone app, or a layer inside JobDone / Workflow Manager?
 2. What is the first real command Peter would use this week?
 3. Does the first version need voice, or can it start as text/CLI?
-4. What driver should prove the concept first: Android intents, Tasker, phone
-   control app, shell scripts, or JobDone actions?
+4. What Linux command should prove the concept first?
 5. What trust level must be implemented first?
 6. What does the command schema need to include for a useful dry-run?
 7. Is the planning graph needed in V1, or should V1 use explicit pipelines?
