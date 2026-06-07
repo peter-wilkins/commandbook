@@ -21,6 +21,21 @@ A command describes what the user means, what information is required, what fact
 or effects are desired, what may happen, and what must be shown before action is
 taken.
 
+### Command Argument
+
+A named input supplied when a command starts.
+
+Command arguments follow the familiar CLI model: they can be required or
+optional, and they can have defaults. Supplied command arguments become facts in
+the initial context.
+
+### Initial Context
+
+The set of facts available at the start of planning.
+
+The initial context is usually made from command arguments, defaults, ambient
+device facts, and user/session facts the command is allowed to use.
+
 ### Intent
 
 The user's desired outcome, expressed without committing to a specific device,

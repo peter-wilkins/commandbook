@@ -35,6 +35,9 @@ In Commandbook, zero or more facts make the current planning context. A fact is
 not necessarily known yet; it may be a named placeholder that can become known if
 a query can compute or sense it from other facts.
 
+Command arguments are one source of initial facts. They follow the CLI model:
+named inputs, required or optional, with optional defaults.
+
 ### Planner
 
 In Pathom, the planner decides which resolvers to call and in what order to

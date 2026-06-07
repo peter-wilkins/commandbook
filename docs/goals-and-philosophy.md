@@ -40,6 +40,9 @@ before anything risky happens.
 A command should say what it means, what it needs, what it may do, and what it
 returns. This makes the command understandable to humans and usable by agents.
 
+Commands should feel familiar to people who know CLIs: named arguments, required
+and optional inputs, defaults, and clear output.
+
 ### Capability Before Agency
 
 An agent should not get broad power because it sounds helpful. It gets access to
