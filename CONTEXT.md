@@ -109,6 +109,14 @@ The thing that can perform a capability in a particular environment.
 
 Drivers are replaceable. The commandbook should outlive any one driver.
 
+### Driver Contract
+
+The durable description of a driver.
+
+A driver contract includes the driver name, platform, supported operations or
+capabilities, setup requirements, required permissions, limits, failure cases,
+test strategy, and safety constraints.
+
 ### Device
 
 A physical or virtual surface where commands may be triggered or executed.

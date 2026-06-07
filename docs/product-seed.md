@@ -63,6 +63,8 @@ The fuller language for this is captured in
 Queries and mutations are captured in
 [`docs/operation-contract.md`](operation-contract.md).
 
+Drivers are captured in [`docs/driver-contract.md`](driver-contract.md).
+
 ### Trust Levels
 
 Suggested first draft:
