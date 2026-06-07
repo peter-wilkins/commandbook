@@ -21,9 +21,9 @@ synthetic fixtures.
 
 - Commands declare intent; the planner discovers the route.
 - Avoid using `resolver` to mean path-finder. In Pathom language, a resolver is
-  closer to a Commandbook fact provider.
+  closer to a Commandbook query.
 - The commandbook is documentation, permissions, tests, UI, training data, and
   portability layer.
-- Prefer inspectable pipelines over opaque agent action.
+- Prefer inspectable pipelines over opaque agent execution.
 - Prefer dry-run and explainability before side effects.
 - Complexity needs proof.

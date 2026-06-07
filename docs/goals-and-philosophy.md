@@ -61,10 +61,10 @@ embarrassing, or dangerous action.
 The user's command language should not be locked to one phone app, automation
 tool, browser, AI provider, or operating system.
 
-### Planning Is Separate From Providing
+### Planning Is Separate From Operating
 
-A fact provider knows how to produce a fact. An action knows how to create a side
-effect. The planner decides which providers and actions can satisfy a goal.
+A query knows how to produce facts. A mutation knows how to create side effects.
+The planner decides which queries and mutations can satisfy a goal.
 
 Do not call the planner a resolver.
 

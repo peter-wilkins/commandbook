@@ -9,10 +9,10 @@ The core idea:
 
 Instead of giving an AI assistant broad device access, users define a
 machine-readable commandbook. Each command declares its inputs, outputs,
-capabilities, trust level, side effects, and dry-run behaviour. Providers and
-actions declare what they can produce or do. A planner can then build a safe
-pipeline from intent to action, while the commandbook remains the security
-policy, documentation, test suite, and portability layer.
+capabilities, trust level, side effects, and dry-run behaviour. Queries and
+mutations declare what they can produce or change. A planner can then build a
+safe pipeline from intent to execution, while the commandbook remains the
+security policy, documentation, test suite, and portability layer.
 
 ## Seed
 

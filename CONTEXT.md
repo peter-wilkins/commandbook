@@ -39,19 +39,31 @@ A named piece of information that may be supplied, already known, sensed, or
 computed.
 
 Zero or more facts make up the current context for planning. A fact may be
-unknown at the start of a command and become known only after a fact provider
-runs. If a needed fact cannot be supplied, sensed, or computed, that path through
-the planning graph fails.
+unknown at the start of a command and become known only after a query runs. If a
+needed fact cannot be supplied, sensed, or computed, that path through the
+planning graph fails.
 
 Examples include current location, contact phone number, ETA, captured note text,
 or weather forecast.
 
-### Fact Provider
+### Operation
+
+A query or mutation that can appear in a plan.
+
+Operations are graph nodes the planner can compose.
+
+### Query
 
 A read-only operation that can produce one or more facts from known facts.
 
-Fact provider is the preferred Commandbook term for the thing that is closest to
-a Pathom resolver.
+A Pathom resolver is closest to a Commandbook query.
+
+### Mutation
+
+A side-effecting operation that may change the world outside the commandbook.
+
+Mutations require more care than queries because they may send, publish, spend,
+call, delete, or change something.
 
 ### Capability
 
@@ -87,13 +99,6 @@ An observable change outside the commandbook.
 Examples include sending a message, publishing a file, spending money, calling a
 service, or changing a device state.
 
-### Action
-
-A side-effecting operation that may change the world outside the commandbook.
-
-Actions require more care than fact providers because they may send, publish,
-spend, call, delete, or change something.
-
 ### Dry Run
 
 A non-executing preview of what a command would do.
@@ -109,8 +114,8 @@ step's input.
 
 A component that finds a path from known facts to a goal.
 
-The planner chooses which fact providers and actions could satisfy a command,
-and in what order.
+The planner chooses which queries and mutations could satisfy a command, and in
+what order.
 
 ### Plan
 
@@ -129,7 +134,7 @@ effects.
 ### Reachability Index
 
 A map of what facts and effects can be reached from which known facts,
-capabilities, providers, and actions.
+capabilities, queries, and mutations.
 
 The reachability index helps the planner answer "what can I do from here?"
 
@@ -137,9 +142,8 @@ The reachability index helps the planner answer "what can I do from here?"
 
 Avoid using this as the Commandbook term for path-finding.
 
-In Pathom, a resolver is closer to a Commandbook fact provider: it declares the
-facts it needs and the facts it can provide. In Commandbook, use planner for
-path-finding.
+In Pathom, a resolver is closer to a Commandbook query: it declares the facts it
+needs and the facts it can provide. In Commandbook, use planner for path-finding.
 
 ### Help
 
@@ -149,7 +153,7 @@ safe, and what information is missing.
 ### Create Command
 
 A commandbook interaction where the user and system define a new reusable
-command from a repeated task or one-off action.
+command from a repeated task or one-off operation.
 
 ### Inspection
 

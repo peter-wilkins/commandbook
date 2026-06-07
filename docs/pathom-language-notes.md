@@ -20,7 +20,7 @@ In Pathom, a resolver is a building block that declares relationships between
 attributes. It usually has input requirements and always provides at least one
 attribute.
 
-Commandbook equivalent: `Fact Provider`.
+Commandbook equivalent: `Query`.
 
 Avoid using resolver to mean the thing that finds a route.
 
@@ -33,7 +33,7 @@ Commandbook equivalent: `Fact`.
 
 In Commandbook, zero or more facts make the current planning context. A fact is
 not necessarily known yet; it may be a named placeholder that can become known if
-a provider can compute or sense it from other facts.
+a query can compute or sense it from other facts.
 
 ### Planner
 
@@ -59,8 +59,8 @@ In Pathom, the runner executes a plan.
 
 Commandbook equivalent: `Runner`.
 
-The Commandbook runner needs stronger safety language because actions may affect
-the user's real life.
+The Commandbook runner needs stronger safety language because mutations may
+affect the user's real life.
 
 ### Index
 
@@ -72,18 +72,17 @@ Commandbook equivalent: `Reachability Index`.
 This index answers questions like:
 
 - What facts can be produced from the facts I already have?
-- What actions can be taken from the facts and permissions I already have?
+- What mutations can be run from the facts and permissions I already have?
 - What is missing before a command can run?
 
 ### Mutation
 
 In Pathom, mutations are the write side and usually perform side effects.
 
-Commandbook equivalent: `Action`.
+Commandbook equivalent: `Mutation`.
 
-`Action` is better product language for non-technical users, but the Pathom
-distinction is useful: reading facts and changing the world are different kinds
-of operation.
+This term is deliberately technical. We will educate users if needed, because the
+query/mutation split is central to the safety model.
 
 ### EQL Request
 
@@ -98,8 +97,8 @@ The human says an intent. The system turns that into a machine-readable goal.
 | Pathom term | Commandbook term | Why |
 | --- | --- | --- |
 | Attribute | Fact | More human, works beyond data APIs |
-| Resolver | Fact Provider | Avoids confusing resolver with route-finder |
-| Mutation | Action | Clearer for side effects |
+| Resolver | Query | Aligns with GraphQL-style read-side operation |
+| Mutation | Mutation | Aligns with GraphQL-style write-side operation |
 | Planner | Planner | Same meaning, good fit |
 | Plan | Plan | Same meaning, inspectable route |
 | Runner | Runner | Same meaning |
@@ -117,12 +116,12 @@ Intent -> Goal -> Planner -> Plan -> Dry Run -> Approval -> Runner -> Result
 The planner consults:
 
 ```text
-Facts + Fact Providers + Actions + Capabilities + Trust Levels + Drivers
+Facts + Queries + Mutations + Capabilities + Trust Levels + Drivers
 ```
 
 This keeps the terms tight:
 
-- Fact providers produce information.
-- Actions create side effects.
+- Queries produce facts.
+- Mutations create side effects.
 - The planner finds the route.
 - The runner executes the approved route.

@@ -146,9 +146,8 @@ want:
 
 The command is not a hard-coded script. It is a desired end state.
 
-Terminology note: Pathom calls the small input-to-output operations resolvers.
-Commandbook calls those fact providers. The thing that finds the route is the
-planner.
+Terminology note: Pathom calls read-side input-to-output operations resolvers.
+Commandbook calls those queries. The thing that finds the route is the planner.
 
 ## Product Hypothesis
 
