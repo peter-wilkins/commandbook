@@ -1,0 +1,19 @@
+{
+  "name": "configure_git_identity",
+  "description": "Configure git user.name and user.email for the current repository.",
+  "defaultScope": "current_repo",
+  "goal": {
+    "facts": ["verifiedGitIdentity"],
+    "effects": ["git_identity_configured"]
+  },
+  "queue": [
+    { "op": "query_current_repo" },
+    { "op": "query_git_identity" },
+    { "op": "ensure_git_identity_facts" },
+    { "op": "dry_run_git_identity" },
+    { "op": "apply_git_identity" },
+    { "op": "verify_git_identity" },
+    { "op": "ask_are_you_happy" }
+  ]
+}
+

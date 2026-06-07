@@ -33,7 +33,7 @@ Everything else is an adapter.
 
 ## V0 Can Be A Script
 
-For Linux-first development, V0 can be a TypeScript script:
+For Linux-first development, V0 can be a plain JavaScript script:
 
 ```bash
 commandbook configure_git_identity --scope current_repo
@@ -58,27 +58,59 @@ This is enough to prove:
 - failed paths can be recorded
 - a later platform can swap storage without changing the runner
 
+## V0 Language Choice
+
+Use JavaScript first.
+
+Reasons:
+
+- less build noise while Peter is reading the code closely
+- easier to run as a local script
+- fewer generated artifacts and toolchain decisions
+- fast enough to discover the real bug farms
+
+Use comments and JSDoc where they reduce ambiguity:
+
+- queue rewriting
+- recovery and idempotency rules
+- why a human pause is being created
+- why a mutation is safe to retry or not safe to retry
+- where the core must avoid platform APIs
+
+Do not comment obvious assignments or wrap everything in types too early.
+
+Bring in TypeScript later when one of these becomes true:
+
+- adapter boundaries start drifting
+- queue item shapes get hard to remember
+- tests reveal shape bugs that types would catch
+- the package becomes public enough that type contracts help users
+
 ## Core Data Types
 
 ### RunContext
 
 The whole current state of a run.
 
-```ts
-type RunContext = {
-  runId: string
-  command: string
-  status: RunStatus
-  facts: Record<string, unknown>
-  goal: Goal
-  queue: QueueItem[]
-  stack: QueueItem[]
-  completed: CompletedStep[]
-  inProgress: InProgressStep[]
-  humanRequirements: HumanRequirement[]
-  approvals: Record<string, ApprovalState>
-  receipts: Receipt[]
-  failures: Failure[]
+```js
+/**
+ * Whole serialized state of one command run.
+ * Keep this plain data so a run can be stored, inspected, and resumed.
+ */
+const runContext = {
+  runId: '2026-06-07T22-10-00.123Z_abcd1234',
+  command: 'configure_git_identity',
+  status: 'running',
+  facts: {},
+  goal: {},
+  queue: [],
+  stack: [],
+  completed: [],
+  inProgress: [],
+  humanRequirements: [],
+  approvals: {},
+  receipts: [],
+  failures: []
 }
 ```
 
@@ -88,11 +120,11 @@ The queued work item.
 
 Queued work must be data, not a function closure.
 
-```ts
-type QueueItem = {
-  op: string
-  input?: Record<string, unknown>
-  phase?: 'enter' | 'leave' | 'recover'
+```js
+const queueItem = {
+  op: 'query_git_identity',
+  input: { scope: 'current_repo' },
+  phase: 'enter'
 }
 ```
 
@@ -100,21 +132,27 @@ type QueueItem = {
 
 The local implementation for a named query, mutation, or control step.
 
-```ts
-type OperationHandler = (ctx: RunContext, item: QueueItem) =>
-  Promise<RunContext>
+```js
+/**
+ * @param {object} ctx RunContext
+ * @param {object} item QueueItem
+ * @returns {Promise<object>} updated RunContext
+ */
+async function operationHandler(ctx, item) {
+  return ctx
+}
 ```
 
 ### RunStore
 
 The durable storage boundary.
 
-```ts
-interface RunStore {
-  get(key: string): Promise<unknown | null>
-  put(key: string, value: unknown): Promise<void>
-  list(prefix: string): Promise<string[]>
-  del(key: string): Promise<void>
+```js
+const runStore = {
+  async get(key) {},
+  async put(key, value) {},
+  async list(prefix) {},
+  async del(key) {}
 }
 ```
 
@@ -180,6 +218,27 @@ This is different from silently editing the shared recipe. V0 should only update
 the current run. If the pattern proves reusable, the system can later propose a
 recipe patch for the shared registry.
 
+## Unplanned Issues
+
+An unplanned issue is a condition discovered during a run that the recipe did
+not explicitly handle.
+
+Examples:
+
+- git identity is missing
+- a certificate is missing
+- a driver is not installed
+- a permission is denied
+- a command line tool returns a known setup error
+
+V0 behaviour:
+
+1. Record the failure in the run context.
+2. If the failure is recognized, update the current run queue.
+3. Pause for the human only if needed facts or approvals are missing.
+4. Resume the original mission after setup succeeds.
+5. Do not edit the shared recipe automatically.
+
 ## Recipe Update Rule
 
 Runs may update themselves.
@@ -201,6 +260,31 @@ Useful across machines/users:
 
 This keeps the system adaptive without letting one weird failure permanently
 pollute the commandbook.
+
+## Command Discoverability
+
+The system will need a command registry, but V0 can keep it simple.
+
+Start with a local folder:
+
+```text
+recipes/
+  configure_git_identity.yaml
+  git_push_current_branch.yaml
+```
+
+A registry entry should eventually answer:
+
+- what command exists
+- what it does
+- what arguments it accepts
+- what facts and effects it targets
+- what capabilities it needs
+- what setup commands it may trigger
+- what platforms or drivers can run it
+
+Packaging compiled drivers is a separate design problem. For now, drivers are
+local adapters referenced by recipe or operation name.
 
 ## Planner V0
 
@@ -235,14 +319,14 @@ The core must not call:
 
 The core receives these as adapters:
 
-```ts
-type RuntimeAdapters = {
-  store: RunStore
-  handlers: OperationRegistry
-  clock: Clock
-  idGenerator: IdGenerator
-  human: HumanAdapter
-  logger: Logger
+```js
+const runtimeAdapters = {
+  store,
+  handlers,
+  clock,
+  idGenerator,
+  human,
+  logger
 }
 ```
 
@@ -259,18 +343,17 @@ That lets the same core run in:
 packages/
   core/
     src/
-      types.ts
-      runner.ts
-      registry.ts
-      recipe.ts
-      costs.ts
+      runner.js
+      registry.js
+      recipe.js
+      costs.js
   adapters-file/
     src/
-      FileRunStore.ts
-      ShellDriver.ts
+      FileRunStore.js
+      ShellDriver.js
   cli/
     src/
-      commandbook.ts
+      commandbook.js
 recipes/
   configure_git_identity.yaml
   git_push_current_branch.yaml

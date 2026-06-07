@@ -1,0 +1,15 @@
+{
+  "name": "commandbook",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "bin": {
+    "commandbook": "./src/cli/commandbook.js"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -299,6 +299,23 @@ A proposed change to a command recipe.
 Runs may update their own queue immediately, but shared recipes should change
 only after the new pattern has evidence or tests.
 
+### Unplanned Issue
+
+A condition discovered during a run that the current command recipe did not
+explicitly handle.
+
+An unplanned issue may update the current run queue, create a human requirement,
+or produce a recipe patch proposal later. It should not silently mutate the
+shared recipe.
+
+### Command Registry
+
+The discoverable index of available command recipes.
+
+The command registry should help users and planners find commands by name,
+intent, arguments, facts, effects, capabilities, platform support, and setup
+relationships.
+
 ### Capability Gap
 
 A missing command, query, mutation, driver, setup graph, verifier, or permission

@@ -139,7 +139,7 @@ large and too Clojure-shaped.
 Use this strategy instead:
 
 1. Keep borrowing the mental model and tests.
-2. Implement a minimal TypeScript planner for Commandbook's subset.
+2. Implement a minimal JavaScript planner for Commandbook's subset.
 3. Keep compatibility fixtures inspired by Pathom examples.
 4. Optionally run Pathom locally as a golden-master oracle during development.
 5. Do not ship ClojureScript/Pathom in the first browser or phone bundle.
@@ -274,5 +274,6 @@ Do not start with:
 - full Pathom compatibility
 - Android direct UI automation
 - XState as a mandatory dependency
+- TypeScript or a build step before shape bugs justify it
 
 Only add those when a local-first Linux slice proves the pain.

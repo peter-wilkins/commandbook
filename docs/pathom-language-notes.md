@@ -135,7 +135,7 @@ Borrow Pathom's ideas before borrowing Pathom itself.
 
 Pathom is a strong reference model for fact-oriented planning, but shipping
 ClojureScript and Pathom in the first local-first runtime would add weight and
-tooling risk. The first implementation should be a small TypeScript subset with
+tooling risk. The first implementation should be a small JavaScript subset with
 Commandbook's safety model built in.
 
 Useful Pathom-inspired compatibility work:
