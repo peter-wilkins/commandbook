@@ -21,6 +21,14 @@ A command describes what the user means, what information is required, what fact
 or effects are desired, what may happen, and what must be shown before action is
 taken.
 
+### Command Contract
+
+The durable description of a command.
+
+A command contract includes the command name, intent, command arguments, goal,
+allowed capabilities, trust level, dry-run shape, expected outputs, examples,
+and any important constraints.
+
 ### Command Argument
 
 A named input supplied when a command starts.
