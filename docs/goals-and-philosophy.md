@@ -53,6 +53,10 @@ specific capabilities through specific commands.
 When a command has meaningful side effects, the user should be able to see what
 would happen first.
 
+Setup work follows the same rule. Installing a driver, saving an API key,
+granting a permission, or paying for access is still real work and must be
+inspectable.
+
 ### Helpful Friction
 
 The system should be fast for low-risk commands and slower for higher-risk
@@ -63,6 +67,10 @@ embarrassing, or dangerous action.
 
 The user's command language should not be locked to one phone app, automation
 tool, browser, AI provider, or operating system.
+
+Driver setup should be resumable. If setup pauses because the human needs to
+provide an API key, approve a permission, pay for something, or plug in a device,
+the system should checkpoint and continue later.
 
 ### Planning Is Separate From Operating
 

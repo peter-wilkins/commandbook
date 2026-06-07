@@ -65,6 +65,9 @@ Queries and mutations are captured in
 
 Drivers are captured in [`docs/driver-contract.md`](driver-contract.md).
 
+Resumable setup graphs are captured in
+[`docs/resumable-setup-graphs.md`](resumable-setup-graphs.md).
+
 ### Trust Levels
 
 Suggested first draft:

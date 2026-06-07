@@ -117,6 +117,51 @@ A driver contract includes the driver name, platform, supported operations or
 capabilities, setup requirements, required permissions, limits, failure cases,
 test strategy, and safety constraints.
 
+### Setup Requirement
+
+A condition that must be true before a driver or operation can run safely.
+
+A setup requirement may already be satisfied, may be checked by a query, or may
+need a setup graph to satisfy it.
+
+### Setup Graph
+
+A plan for satisfying setup requirements.
+
+A setup graph may contain queries, mutations, dry runs, approvals, human
+requirements, and checkpoints.
+
+### Installed Driver
+
+A driver whose setup requirements are currently satisfied.
+
+An installed driver is best understood as cached setup state: remembered facts
+and effects from completed setup queries and mutations. It is not the mutation
+itself.
+
+### Human Requirement
+
+A missing fact, approval, credential, payment, physical action, or decision that
+the system cannot safely produce by itself.
+
+When a graph reaches a human requirement, it should pause clearly and resume from
+the checkpoint once the human has supplied what is needed.
+
+### Checkpoint
+
+A saved point in a plan run.
+
+A checkpoint records enough facts, effects, approvals, failures, and completed
+operations for the run to resume without repeating unsafe or expensive work.
+
+### Coffee Grinder
+
+The resumable loop that owns planning and execution.
+
+The coffee grinder plans, runs, checkpoints, pauses for missing human
+requirements, resumes when those requirements are satisfied, and stops when the
+goal is complete or no safe path remains.
+
 ### Device
 
 A physical or virtual surface where commands may be triggered or executed.

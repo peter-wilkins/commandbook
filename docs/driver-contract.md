@@ -38,6 +38,9 @@ The operations or capabilities this driver can implement.
 
 What must exist before the driver can run.
 
+Setup requirements are not only static checklist items. They may be goals that
+the coffee grinder can plan and run as a setup graph.
+
 Examples:
 
 - app installed
@@ -45,6 +48,11 @@ Examples:
 - Android permission granted
 - VPN connected
 - browser logged in
+
+### Setup Graph
+
+The queries, mutations, approvals, and human requirements that can satisfy setup
+requirements.
 
 ### Permissions
 
@@ -90,6 +98,17 @@ implements:
 setup_requirements:
   - phone_connected_or_app_installed
   - sms_permission_granted
+setup_graph:
+  goal:
+    facts:
+      - phone_app_installed
+      - sms_permission_granted
+  mutations:
+    - install_phone_app
+    - request_sms_permission
+  human_requirements:
+    - unlock_phone
+    - approve_android_permission_dialog
 permissions:
   - android.permission.SEND_SMS
 inputs_and_outputs:
@@ -140,3 +159,19 @@ send_message
 
 The planner should reason in terms of operations and capabilities. The runner
 uses the selected driver when executing an approved plan.
+
+## Resumable Setup
+
+An installed driver is cached setup state, not a special permanent object.
+
+If setup needs a human, money, credentials, a permission dialog, or physical
+access to a device, the coffee grinder should checkpoint the setup graph and
+pause. Once the missing requirement is supplied, the run should resume without
+repeating completed unsafe work.
+
+Examples:
+
+- wait for the user to paste an API key
+- wait for the user to approve an Android permission prompt
+- wait for payment before enabling a paid API driver
+- wait for the phone to be plugged in
