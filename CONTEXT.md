@@ -123,6 +123,22 @@ A driver contract includes the driver name, platform, supported operations or
 capabilities, setup requirements, required permissions, limits, failure cases,
 test strategy, and safety constraints.
 
+### Driver Interface
+
+The required functions a driver exposes to the coffee grinder.
+
+At minimum, a driver must support `run` and `recover`. Mutation-capable drivers
+must be able to recover after process death without blindly repeating side
+effects.
+
+### Recover
+
+A driver function that reconciles a checkpoint with the outside world.
+
+Recover should inspect or repair the current state after interruption and return
+whether an operation succeeded, failed, can resume, needs a human, or is unsafe
+to continue automatically.
+
 ### Setup Requirement
 
 A condition that must be true before a driver or operation can run safely.
@@ -153,6 +169,20 @@ the system cannot safely produce by itself.
 When a graph reaches a human requirement, it should pause clearly and resume from
 the checkpoint once the human has supplied what is needed.
 
+### Blocking Resolver
+
+A graph node that cannot complete automatically yet.
+
+A blocking resolver pauses the coffee grinder and produces a human requirement,
+such as a choice, approval, credential, payment, or physical action.
+
+### Choice Resolver
+
+A blocking resolver that asks the human to choose from a set of options.
+
+The choice resolver should explain the trade-off, record the decision as a fact,
+and let the graph resume.
+
 ### Checkpoint
 
 A saved point in a plan run.
@@ -167,6 +197,28 @@ The resumable loop that owns planning and execution.
 The coffee grinder plans, runs, checkpoints, pauses for missing human
 requirements, resumes when those requirements are satisfied, and stops when the
 goal is complete or no safe path remains.
+
+### Capability Gap
+
+A missing command, query, mutation, driver, setup graph, verifier, or permission
+that prevents the planner from satisfying a goal.
+
+### Builder Agent
+
+An agent that can create missing Commandbook pieces when the graph hits a
+capability gap.
+
+Builder agents should produce local, tested, low-trust pieces first. Generic
+pieces may be proposed for publication only after redaction, tests, and human
+approval.
+
+### Shared Registry
+
+The shared open-source home for generic Commandbook pieces.
+
+The shared registry should contain publishable contracts, drivers, tests,
+examples, and docs. It must not contain Peter-specific private facts,
+credentials, or raw captures.
 
 ### Device
 

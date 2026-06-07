@@ -85,6 +85,53 @@ How the driver can be tested without causing unsafe side effects.
 
 Rules that limit surprising behaviour.
 
+## Required Interface
+
+Every driver should expose a small required interface to the coffee grinder.
+
+```yaml
+interface:
+  run:
+    description: Execute the requested query or approved mutation.
+  recover:
+    description: Reconcile a checkpoint with the current outside-world state.
+```
+
+Mutation-capable drivers must implement `recover`.
+
+`recover` exists because the process may die after a mutation starts but before
+Commandbook records the result. The driver must know how to inspect or repair the
+state without blindly repeating side effects.
+
+Suggested recovery results:
+
+```yaml
+recover_result:
+  status:
+    one_of:
+      - not_started
+      - succeeded
+      - failed
+      - resumable
+      - needs_human
+      - unsafe_unknown
+  facts: []
+  effects: []
+  next_step: ""
+```
+
+Rules:
+
+- If the mutation definitely succeeded, return `succeeded` and the effects.
+- If the mutation definitely failed before side effects, return `failed` or
+  `not_started`.
+- If the mutation can safely continue, return `resumable`.
+- If the driver cannot know safely, return `needs_human` or `unsafe_unknown`.
+- Use the mutation's idempotency strategy and recovery clues.
+- Never repeat an `at_most_once` mutation during recovery unless the driver can
+  prove it did not happen.
+- Never repeat an `unknown` mutation during recovery.
+
 ## Example: `android_sms_driver`
 
 ```yaml
@@ -131,10 +178,28 @@ test_strategy:
   - dry_run_only_for_default_tests
   - fake_driver_for_unit_tests
   - allowlisted_test_number_for_integration_tests
+interface:
+  run:
+    inputs:
+      - recipient
+      - message_text
+      - command_run_id
+  recover:
+    strategy:
+      - check_outbox_or_sent_message_receipt
+      - compare recipient, message_text, and command_run_id
+      - return unsafe_unknown if platform state cannot prove the outcome
+idempotency:
+  strategy: at_most_once
+  recovery_clues:
+    - command_run_id
+    - recipient
+    - message_text
 safety_constraints:
   - Must not send unless the approved dry run showed recipient and message_text.
   - Must not send to non-allowlisted numbers in test mode.
   - Must return a clear failure if permission is missing.
+  - Must not send a second message during recovery unless idempotency proof is available.
 ```
 
 ## Relationship To Operations

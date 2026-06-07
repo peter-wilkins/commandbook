@@ -16,6 +16,7 @@ The coffee grinder owns:
 - selected plan
 - completed queries
 - completed mutations
+- in-progress mutations
 - skipped or failed paths
 - dry runs
 - approvals
@@ -25,7 +26,7 @@ The coffee grinder owns:
 - final result
 
 It also owns the boring but essential operation patterns: wait, poll, watch,
-verify, retry, timeout, and backoff.
+verify, recover, retry, timeout, and backoff.
 
 ## Flow
 
@@ -40,8 +41,9 @@ verify, retry, timeout, and backoff.
 8. Pause for approval or missing human requirement
 9. Run approved mutations
 10. Checkpoint after meaningful progress
-11. Re-plan if facts changed or a path failed
-12. Finish, pause, fail, or cancel
+11. Recover in-progress mutations after interruption
+12. Re-plan if facts changed or a path failed
+13. Finish, pause, fail, or cancel
 ```
 
 Common operation patterns are captured in
@@ -85,6 +87,7 @@ completed_queries:
   - current_location
   - estimate_travel_time
 completed_mutations: []
+in_progress_mutations: []
 pending_mutations:
   - send_message
 approvals:
@@ -104,6 +107,7 @@ Suggested first-pass statuses:
 - `paused_for_human`
 - `paused_for_approval`
 - `running_mutations`
+- `recovering`
 - `replanning`
 - `complete`
 - `failed`
@@ -123,9 +127,72 @@ Checkpoint after:
 Do not repeat completed mutations unless the mutation contract says it is safe
 and idempotent.
 
-## Human Requirements
+Mutation contracts should declare their idempotency strategy. This is a major
+input to recovery.
 
-Human requirements should be precise.
+```yaml
+idempotency:
+  strategy: at_most_once
+  key_facts:
+    - command_run_id
+    - recipient
+    - message_text
+```
+
+The coffee grinder should treat `at_most_once` as "do not retry unless recovery
+proves the mutation did not happen."
+
+## Recovery
+
+On restart after process death, the coffee grinder should recover before running
+new mutations.
+
+Recovery flow:
+
+```text
+1. Load last checkpoint.
+2. Find any in-progress mutation.
+3. Ask the selected driver to recover it.
+4. Use the mutation idempotency strategy and recovery clues.
+5. Record recovered facts/effects or failure.
+6. If the outcome is unsafe or unknown, pause for a human requirement.
+7. Re-plan from the recovered state.
+```
+
+Drivers do the platform-specific recovery work because only the driver knows how
+to inspect the outside-world state.
+
+Examples:
+
+- SMS driver checks whether the exact message was sent.
+- Email driver checks provider message ID or outbox state.
+- Settings driver checks whether the target setting now has the desired value.
+- File driver checks checksum and final path.
+
+The coffee grinder must not blindly rerun a mutation after a crash.
+
+## Capability Gaps
+
+If no safe plan exists because a command, query, mutation, driver, setup graph,
+verifier, or permission is missing, the coffee grinder can create a capability
+gap.
+
+A capability gap can become a builder-agent task.
+
+See [`capability-gap-builder-loop.md`](capability-gap-builder-loop.md).
+
+## Human Requirements And Choice Resolvers
+
+The human's original request does not need to be precise.
+
+If the human says "send an email" and no email driver is ready, the planner can
+expand that into setup goals. If several setup paths are valid, the graph can
+insert a choice resolver.
+
+A choice resolver asks the human to pick from a useful set of choices, records
+the answer as a fact, checkpoints, and resumes.
+
+System-generated human requirements should be actionable.
 
 Bad:
 
@@ -136,7 +203,14 @@ Setup email.
 Good:
 
 ```text
-Create an API key in Brevo and paste it into BREVO_API_KEY.
+Which email provider should I set up?
+
+Recommended: Brevo, because we already tested it for Tara.
+
+Choices:
+- Brevo: fastest route, needs API key.
+- Cloudflare Email: keeps more inside Cloudflare, may need more setup.
+- Gmail: familiar inbox, more OAuth complexity.
 ```
 
 Human requirements should include:

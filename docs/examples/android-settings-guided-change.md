@@ -21,7 +21,7 @@ The system should:
 - cache the route for next time
 
 This example also uses general operation patterns from Linux-style automation:
-wait, poll, watch, verify, timeout, and retry. See
+wait, poll, watch, verify, recover, timeout, and retry. See
 [`../operation-patterns.md`](../operation-patterns.md).
 
 ## Driver Shape
@@ -236,6 +236,11 @@ approval:
 constraints:
   - Must not change the target setting.
   - Must leave the persistent instruction card available.
+recover:
+  strategy:
+    - check_foreground_or_recent_settings_screen
+    - reopen instruction card if needed
+    - return needs_human if app focus cannot be determined
 ```
 
 ### Mutation: `cache_android_setting_route`
@@ -320,6 +325,7 @@ This example proves:
 - mutation opens the settings screen
 - human requirement pauses the graph
 - wait/poll/verify patterns keep the run alive through app switching
+- driver recovery handles process death without forgetting the goal
 - coffee grinder resumes after the human step
 - route knowledge becomes cached setup state
 - the commandbook avoids broad silent device control

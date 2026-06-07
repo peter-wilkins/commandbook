@@ -90,6 +90,15 @@ Planners, indexes, schemas, trust models, and pipelines are useful only when the
 make a real command safer, clearer, or faster. Add them in response to observed
 need.
 
+### Bootstrap From Open To Closed
+
+Commandbook starts as a fragile open system helped by a clever agent.
+
+When the agent has to improvise a useful missing piece, that piece should be
+captured, tested, documented, and turned into a more deterministic component.
+Over time, repeated open-ended work should crystallise into a closed, shared,
+inspectable system.
+
 ## Early Shape
 
 The first useful product is probably not a big app. It is a small commandbook

@@ -50,6 +50,40 @@ Examples:
 - verify a server is listening on a port
 - verify a file checksum
 
+## Recover
+
+Reconcile saved run state with outside-world state after interruption.
+
+Examples:
+
+- after process death, check whether an SMS was already sent
+- after a crash, check whether a file write completed
+- after a browser restart, check whether a form submission succeeded
+- after Android Settings app switching, check whether the target setting changed
+
+Recover should avoid repeating mutations unless idempotency is proven.
+
+The mutation's idempotency strategy is a clue for recovery:
+
+- `idempotent`: retry may be safe
+- `at_most_once`: first prove it did not happen
+- `repeatable`: repeating is acceptable
+- `unknown`: pause for human recovery
+
+## Choice Resolver
+
+Ask the human to choose from options when the graph has more than one valid path
+and cannot safely choose alone.
+
+Examples:
+
+- choose an email provider
+- choose whether to pay for a service
+- choose between a fast risky route and a slower safer route
+- choose which phone to configure
+
+The result of a choice resolver becomes a fact and the coffee grinder resumes.
+
 ## Timeout
 
 Stop waiting or polling after a defined limit.

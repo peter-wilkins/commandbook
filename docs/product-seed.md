@@ -74,6 +74,12 @@ The coffee grinder run model is captured in
 Deno permission-model research is captured in
 [`docs/research-deno-permissions.md`](research-deno-permissions.md).
 
+Temporal workflow research is captured in
+[`docs/research-temporal-workflows.md`](research-temporal-workflows.md).
+
+The capability gap builder loop is captured in
+[`docs/capability-gap-builder-loop.md`](capability-gap-builder-loop.md).
+
 The first end-to-end example is
 [`docs/examples/android-settings-guided-change.md`](examples/android-settings-guided-change.md).
 

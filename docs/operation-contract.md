@@ -106,6 +106,17 @@ Mutation-specific fields:
 - `idempotency`: how repeat execution is prevented or made safe
 - `approval`: what approval is required
 
+Idempotency is a recovery clue. A mutation that should only happen once should
+declare how the runner can recognise the one intended effect.
+
+Useful first-pass strategies:
+
+- `idempotent`: safe to retry because the same request produces the same single
+  outcome
+- `at_most_once`: must not be retried unless recovery proves it did not happen
+- `repeatable`: safe to perform more than once
+- `unknown`: pause for human recovery rather than guessing
+
 ### Example: `send_message`
 
 ```yaml
@@ -131,10 +142,15 @@ dry_run:
 approval:
   required: true
 idempotency:
+  strategy: at_most_once
   key_facts:
     - recipient
     - message_text
     - command_run_id
+  recovery_clues:
+    - command_run_id
+    - recipient
+    - message_text
 failure_cases:
   - recipient_unknown
   - messaging_driver_unavailable
