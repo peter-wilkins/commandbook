@@ -24,6 +24,33 @@ This example also uses general operation patterns from Linux-style automation:
 wait, poll, watch, verify, recover, timeout, and retry. See
 [`../operation-patterns.md`](../operation-patterns.md).
 
+This is an Android-shaped instance of the abstract configuration change model.
+See [`../configuration-change-model.md`](../configuration-change-model.md).
+
+## Granularity
+
+`change_android_setting` is a useful developer/debug command because it lets us
+test the generic machinery.
+
+The user-facing command should usually be more specific:
+
+```bash
+set_default_assistant --assistant ChatGPT --scope current_phone
+```
+
+That specific command can still use the reusable configuration operations:
+
+```text
+resolve_configuration_target
+find_configuration_route
+open_configuration_surface
+complete_human_configuration_step
+verify_configuration_state
+cache_configuration_route
+```
+
+The Android driver only owns the Android-specific mechanics.
+
 ## Driver Shape
 
 Do not build one giant driver that knows every settings path for every Android

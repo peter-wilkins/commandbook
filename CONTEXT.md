@@ -102,6 +102,66 @@ A side-effecting operation that may change the world outside the commandbook.
 Mutations require more care than queries because they may send, publish, spend,
 call, delete, or change something.
 
+### Configuration Target
+
+The thing the user wants configured.
+
+Examples include default assistant, default browser, app battery policy,
+notification permission, email provider, or project visibility.
+
+### Configuration Scope
+
+Where a configuration change applies.
+
+Examples include current phone, current laptop user account, debug Chrome
+profile, a JobDone team, or a Cloudflare account.
+
+### Configuration Subject
+
+The entity being selected, configured, or affected by a configuration target.
+
+Examples include ChatGPT as the assistant, JobDone as the app, Brevo as the
+email provider, or Firefox as the browser.
+
+### Desired State
+
+The state the user wants after a command completes.
+
+### Current State
+
+The observed state before or after a query or mutation runs.
+
+### Configuration Surface
+
+The place where a configuration change can be made.
+
+Examples include a settings screen, config file, CLI command, API endpoint, or
+web dashboard page.
+
+### Configuration Route
+
+The route to a configuration surface and any remaining steps needed to make the
+change.
+
+Configuration routes can become stale when devices, apps, dashboards, or
+permissions change.
+
+### Configuration Mode
+
+The level of control the system is allowed to take while pursuing a
+configuration change.
+
+Examples include opening only, guiding the human through the change, or directly
+applying the change when a driver has enough permission and proof.
+
+### Setting
+
+A platform-specific configuration item.
+
+Use configuration target for the abstract Commandbook concept. Use setting when
+talking about a particular platform surface such as Android Settings or a web
+dashboard setting.
+
 ### Capability
 
 A permissioned class of action that a command may need.
