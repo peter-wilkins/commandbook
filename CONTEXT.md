@@ -35,7 +35,13 @@ from that intent.
 
 ### Fact
 
-A named piece of information the system knows, can ask for, or can produce.
+A named piece of information that may be supplied, already known, sensed, or
+computed.
+
+Zero or more facts make up the current context for planning. A fact may be
+unknown at the start of a command and become known only after a fact provider
+runs. If a needed fact cannot be supplied, sensed, or computed, that path through
+the planning graph fails.
 
 Examples include current location, contact phone number, ETA, captured note text,
 or weather forecast.

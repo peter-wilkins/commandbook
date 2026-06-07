@@ -31,6 +31,10 @@ attributes.
 
 Commandbook equivalent: `Fact`.
 
+In Commandbook, zero or more facts make the current planning context. A fact is
+not necessarily known yet; it may be a named placeholder that can become known if
+a provider can compute or sense it from other facts.
+
 ### Planner
 
 In Pathom, the planner decides which resolvers to call and in what order to
