@@ -1,11 +1,15 @@
 # Capability Gap Builder Loop
 
 Commandbook should be able to notice when the graph cannot finish because a
-piece is missing.
+piece is missing or broken.
 
 Sometimes the useful next step is not "tell the human to install something".
 Sometimes it is "build the missing query, mutation, driver, verifier, or setup
 graph while getting the job done."
+
+Sometimes the piece used to work, but the world changed underneath us: an app
+updated, a website moved a button, an API changed, a phone OEM moved a settings
+screen, or a permission flow changed.
 
 ## Core Idea
 
@@ -13,7 +17,8 @@ graph while getting the job done."
 Goal
   -> Planner
   -> Capability gap
-  -> Builder agent creates missing piece
+  -> Capability agent searches for existing fix
+  -> Capability agent creates or applies missing piece
   -> Tests and safety review
   -> Install locally at low trust
   -> Resume coffee grinder run
@@ -53,6 +58,57 @@ Examples:
 - no mutation can open the needed Android settings screen
 - no setup graph can get an API key installed
 - no verifier can prove an effect happened
+- a previously working driver no longer works because the world changed
+
+## Failure Capsule
+
+When a run fails, the coffee grinder should capture a failure capsule.
+
+The failure capsule is the handoff from execution to repair.
+
+It should include:
+
+- command and arguments
+- goal
+- current facts
+- selected plan
+- selected driver and version
+- operation contract
+- driver contract
+- checkpoint history
+- dry-run approval state
+- idempotency strategy
+- recover result
+- error output
+- relevant environment metadata
+- redacted logs or screenshots where safe
+- synthetic reproduction hints
+
+It must not include:
+
+- raw private messages
+- secrets
+- credentials
+- unredacted personal captures
+- private device identifiers unless explicitly allowed
+
+## Capability Agent
+
+A capability agent responds to a capability gap or failure capsule.
+
+First steps:
+
+```text
+1. Search the shared registry and open PRs for this failure signature.
+2. If a patch exists, apply it locally at low trust.
+3. Run fake-driver and regression tests.
+4. Try to complete the original coffee grinder run.
+5. If it works, record validation evidence.
+6. If no patch exists, create one.
+```
+
+Capability agents are not allowed to silently publish private state. They repair
+the generic capability and keep Peter-specific evidence local or redacted.
 
 ## Builder Agent
 
@@ -70,6 +126,42 @@ It can create:
 - tests
 - examples
 - docs
+
+Builder agents are one kind of capability agent. Repair agents are another.
+
+## Shared Repair Loop
+
+When many users hit the same broken driver or operation, their capability agents
+should converge on a shared fix.
+
+```text
+User A hits failure
+  -> failure capsule
+  -> capability agent creates PR
+
+User B hits same failure
+  -> searches open PRs
+  -> applies PR patch locally
+  -> tests by getting the job done
+  -> adds validation result
+
+User C hits same failure
+  -> applies same PR patch locally
+  -> tests by getting the job done
+  -> adds validation result
+
+Maintainer or policy sees repeated validation
+  -> merge when threshold is met
+```
+
+The threshold might be:
+
+- one maintainer approval
+- three independent successful validations
+- one successful validation on each affected platform/profile
+- stricter review for high-trust mutations
+
+The exact merge rule can vary by risk.
 
 ## Safety Rule
 
@@ -118,6 +210,10 @@ examples/
 The coffee grinder can install from the registry, but new or updated pieces
 should still be checked against local capability policy before use.
 
+Open PRs are part of the registry workflow. Before building a new fix, capability
+agents should check whether a matching PR, patch, issue, or failure signature
+already exists.
+
 ## Example: Email Provider Missing
 
 Human request:
@@ -157,10 +253,38 @@ Builder agent proposes a generic brevo_email_driver package for the shared repo.
 Human approves publication.
 ```
 
+## Example: Android Settings Route Breaks
+
+Human request:
+
+```text
+Make JobDone unrestricted in battery settings.
+```
+
+Coffee grinder failure:
+
+```text
+Previously cached Samsung route no longer matches the current Settings app.
+```
+
+Repair loop:
+
+```text
+Coffee grinder captures failure capsule.
+Capability agent searches open PRs for Samsung battery route fix.
+If patch exists, applies it locally and tests the guided change.
+If patch works, records validation.
+If no patch exists, capability agent discovers new route and opens PR.
+Next users who hit the same failure try the PR first.
+After enough validations, the fix merges.
+```
+
 ## Design Rule
 
 Missing capability is not always a dead end.
 
-It can become a build task, but building must still pass through the same
-permission, dry-run, recovery, testing, and publication membrane as ordinary
-execution.
+Broken capability is not always a local dead end either.
+
+It can become a shared repair task, but building and repairing must still pass
+through the same permission, dry-run, recovery, testing, and publication membrane
+as ordinary execution.

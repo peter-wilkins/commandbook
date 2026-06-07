@@ -80,6 +80,9 @@ Temporal workflow research is captured in
 The capability gap builder loop is captured in
 [`docs/capability-gap-builder-loop.md`](capability-gap-builder-loop.md).
 
+The prior-art sanity check is captured in
+[`docs/prior-art-sanity-check.md`](prior-art-sanity-check.md).
+
 The first end-to-end example is
 [`docs/examples/android-settings-guided-change.md`](examples/android-settings-guided-change.md).
 

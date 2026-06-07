@@ -203,6 +203,20 @@ goal is complete or no safe path remains.
 A missing command, query, mutation, driver, setup graph, verifier, or permission
 that prevents the planner from satisfying a goal.
 
+### Failure Capsule
+
+A portable, redacted bundle of evidence captured when a run fails.
+
+A failure capsule should include enough context for a capability agent to
+reproduce, diagnose, fix, and test the issue without exposing private data.
+
+### Capability Agent
+
+An agent that responds to capability gaps and failures.
+
+Capability agents can search for existing fixes, apply patches, build missing
+pieces, repair broken drivers, run tests, and propose pull requests.
+
 ### Builder Agent
 
 An agent that can create missing Commandbook pieces when the graph hits a
@@ -211,6 +225,15 @@ capability gap.
 Builder agents should produce local, tested, low-trust pieces first. Generic
 pieces may be proposed for publication only after redaction, tests, and human
 approval.
+
+Builder agent is one kind of capability agent.
+
+### Repair Agent
+
+An agent that fixes an existing Commandbook piece when the outside world changes.
+
+Repair agents should start by checking whether another user has already hit and
+fixed the same failure.
 
 ### Shared Registry
 

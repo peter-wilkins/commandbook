@@ -181,6 +181,18 @@ A capability gap can become a builder-agent task.
 
 See [`capability-gap-builder-loop.md`](capability-gap-builder-loop.md).
 
+## Failure Capsules
+
+If the world changes underneath a run, the coffee grinder should capture the
+whole failure as a failure capsule.
+
+The failure capsule is what lets capability agents fix the issue without losing
+the user's original goal. It should be redacted and portable enough to compare
+against open issues and PRs in the shared registry.
+
+Capability agents should first check whether another user has already solved the
+same failure before writing a new fix.
+
 ## Human Requirements And Choice Resolvers
 
 The human's original request does not need to be precise.
