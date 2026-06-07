@@ -75,6 +75,14 @@ A query or mutation that can appear in a plan.
 
 Operations are graph nodes the planner can compose.
 
+### Operation Contract
+
+The durable description of a query or mutation.
+
+An operation contract includes the operation name, operation kind, required
+facts, optional facts, facts produced or effects created, capabilities, driver
+requirements, failure cases, examples, and constraints.
+
 ### Query
 
 A read-only operation that can produce one or more facts from known facts.

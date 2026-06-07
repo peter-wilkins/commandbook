@@ -60,6 +60,9 @@ dry_run: true
 The fuller language for this is captured in
 [`docs/command-contract.md`](command-contract.md).
 
+Queries and mutations are captured in
+[`docs/operation-contract.md`](operation-contract.md).
+
 ### Trust Levels
 
 Suggested first draft:
