@@ -1,0 +1,166 @@
+# Product Seed: Commandbook
+
+Captured from ChatGPT conversation: `Waterproof Case`
+
+Local raw source:
+
+```text
+local/source-captures/waterproof-case-chatgpt.txt
+```
+
+## One Sentence
+
+Commandbook is a permissioned, inspectable shell for human tasks: the user states
+intent, AI plans a safe command pipeline, and every command is constrained by
+declared capabilities, trust level, inputs, outputs, tests, and dry-run
+behaviour.
+
+## Why This Matters
+
+The unsafe pattern is:
+
+```text
+User -> AI -> full device access
+```
+
+That gives an assistant too much power and too little structure.
+
+Commandbook creates a boundary:
+
+```text
+User -> Commandbook -> Capabilities -> Drivers -> Device
+```
+
+The command is not just an action. It is a security policy.
+
+## Core Concepts
+
+### Command
+
+A named intent with a contract.
+
+Example:
+
+```yaml
+name: running_late
+inputs:
+  - contact
+  - eta
+  - message
+outputs:
+  - message_id
+capabilities:
+  - send_message
+trust_level: level_1
+side_effects:
+  - sends_message
+dry_run: true
+```
+
+### Trust Levels
+
+Suggested first draft:
+
+```yaml
+level_0:
+  description: read-only
+
+level_1:
+  description: communication
+
+level_2:
+  description: create content
+
+level_3:
+  description: spend money
+
+level_4:
+  description: emergency actions
+```
+
+Examples:
+
+```text
+check_weather      -> level_0
+what_is_next       -> level_0
+running_late       -> level_1
+check_in           -> level_1
+capture_note       -> level_2
+order_parawing     -> level_3
+call_coastguard    -> level_4
+```
+
+### Dry Run
+
+Before side effects, the system can show what would happen.
+
+Example:
+
+```bash
+dry_run emergency
+```
+
+Output:
+
+```text
+Would:
+- Send location to Cat
+- Send SMS to emergency contact
+- Dial Coastguard
+
+Nothing executed.
+```
+
+### Pipes
+
+Commands can compose if their outputs match another command's inputs.
+
+Examples:
+
+```bash
+current_location | message Cat
+eta_home | running_late Cat
+capture_note | summarize | email Tom
+record_audio | transcribe | classify | save_job
+```
+
+This turns the assistant into a human-task shell, not a generic chatbot.
+
+### Resolver Graph
+
+The system can be Pathom-like:
+
+```text
+known inputs + desired outputs -> resolver graph -> execute steps -> replace
+steps with data -> finish or fail inspectably
+```
+
+Example goal:
+
+```yaml
+want:
+  - message_sent
+  - location_shared
+  - result_logged
+```
+
+The command is not a hard-coded script. It is a desired end state.
+
+## Product Hypothesis
+
+If a user has 50 commands they genuinely use every week, the commandbook becomes
+a valuable personal dataset: a machine-readable description of how a real person
+wants technology to help them.
+
+## Early Questions For Grilling
+
+1. Is Commandbook a standalone app, or a layer inside JobDone / Workflow Manager?
+2. What is the first real command Peter would use this week?
+3. Does the first version need voice, or can it start as text/CLI?
+4. What driver should prove the concept first: Android intents, Tasker, phone
+   control app, shell scripts, or JobDone actions?
+5. What trust level must be implemented first?
+6. What does the command schema need to include for a useful dry-run?
+7. Is the resolver graph needed in V1, or should V1 use explicit pipelines?
+8. How does a user inspect, test, and edit commands without becoming a
+   programmer?
