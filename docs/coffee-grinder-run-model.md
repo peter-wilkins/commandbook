@@ -24,6 +24,9 @@ The coffee grinder owns:
 - checkpoints
 - final result
 
+It also owns the boring but essential operation patterns: wait, poll, watch,
+verify, retry, timeout, and backoff.
+
 ## Flow
 
 ```text
@@ -40,6 +43,9 @@ The coffee grinder owns:
 11. Re-plan if facts changed or a path failed
 12. Finish, pause, fail, or cancel
 ```
+
+Common operation patterns are captured in
+[`operation-patterns.md`](operation-patterns.md).
 
 ## Inputs
 

@@ -74,6 +74,12 @@ The coffee grinder run model is captured in
 Deno permission-model research is captured in
 [`docs/research-deno-permissions.md`](research-deno-permissions.md).
 
+The first end-to-end example is
+[`docs/examples/android-settings-guided-change.md`](examples/android-settings-guided-change.md).
+
+Reusable operation patterns are captured in
+[`docs/operation-patterns.md`](operation-patterns.md).
+
 ### Trust Levels
 
 Suggested first draft:

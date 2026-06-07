@@ -83,6 +83,12 @@ An operation contract includes the operation name, operation kind, required
 facts, optional facts, facts produced or effects created, capabilities, driver
 requirements, failure cases, examples, and constraints.
 
+### Operation Pattern
+
+A reusable control-flow pattern that helps operations run in the real world.
+
+Examples include wait, poll, watch, verify, timeout, retry, and backoff.
+
 ### Query
 
 A read-only operation that can produce one or more facts from known facts.
