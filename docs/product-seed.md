@@ -71,6 +71,9 @@ Configuration changes are captured in
 Local-first implementation direction is captured in
 [`docs/local-first-implementation-strategy.md`](local-first-implementation-strategy.md).
 
+The reusable core boundary is captured in
+[`docs/reusable-core.md`](reusable-core.md).
+
 Resumable setup graphs are captured in
 [`docs/resumable-setup-graphs.md`](resumable-setup-graphs.md).
 

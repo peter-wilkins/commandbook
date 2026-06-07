@@ -265,6 +265,40 @@ The coffee grinder plans, runs, checkpoints, pauses for missing human
 requirements, resumes when those requirements are satisfied, and stops when the
 goal is complete or no safe path remains.
 
+### Run Context
+
+The full serialized state of one command run.
+
+The run context includes facts, goal, queue, stack, completed work,
+in-progress work, human requirements, approvals, receipts, and failures.
+
+### Queue Item
+
+A data description of one piece of queued work inside a run context.
+
+Queue items must be serializable data, not function closures, so the run can be
+stored, inspected, resumed, and moved between storage adapters.
+
+### Operation Handler
+
+The local implementation for a named queue item.
+
+An operation handler takes a run context and queue item, then returns an updated
+run context.
+
+### Receipt
+
+Evidence that a mutation or important step happened.
+
+Receipts help recovery, verification, audit, and human trust.
+
+### Recipe Patch
+
+A proposed change to a command recipe.
+
+Runs may update their own queue immediately, but shared recipes should change
+only after the new pattern has evidence or tests.
+
 ### Capability Gap
 
 A missing command, query, mutation, driver, setup graph, verifier, or permission
