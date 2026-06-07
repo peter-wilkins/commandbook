@@ -19,7 +19,9 @@ synthetic fixtures.
 
 ## Design Bias
 
-- Commands declare intent; resolvers discover the route.
+- Commands declare intent; the planner discovers the route.
+- Avoid using `resolver` to mean path-finder. In Pathom language, a resolver is
+  closer to a Commandbook fact provider.
 - The commandbook is documentation, permissions, tests, UI, training data, and
   portability layer.
 - Prefer inspectable pipelines over opaque agent action.

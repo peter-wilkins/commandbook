@@ -17,13 +17,35 @@ boundary between human intent and machine action.
 
 A named intent with a contract.
 
-A command describes what the user means, what information is required, what may
-happen, and what must be shown before action is taken.
+A command describes what the user means, what information is required, what facts
+or effects are desired, what may happen, and what must be shown before action is
+taken.
 
 ### Intent
 
 The user's desired outcome, expressed without committing to a specific device,
 app, or service.
+
+### Goal
+
+The facts or effects the user wants to end up with.
+
+An intent is the human expression. A goal is the machine-readable target derived
+from that intent.
+
+### Fact
+
+A named piece of information the system knows, can ask for, or can produce.
+
+Examples include current location, contact phone number, ETA, captured note text,
+or weather forecast.
+
+### Fact Provider
+
+A read-only operation that can produce one or more facts from known facts.
+
+Fact provider is the preferred Commandbook term for the thing that is closest to
+a Pathom resolver.
 
 ### Capability
 
@@ -59,6 +81,13 @@ An observable change outside the commandbook.
 Examples include sending a message, publishing a file, spending money, calling a
 service, or changing a device state.
 
+### Action
+
+A side-effecting operation that may change the world outside the commandbook.
+
+Actions require more care than fact providers because they may send, publish,
+spend, call, delete, or change something.
+
 ### Dry Run
 
 A non-executing preview of what a command would do.
@@ -70,11 +99,41 @@ A dry run should be understandable by the user before side effects happen.
 A chain of commands or capabilities where one step's output becomes another
 step's input.
 
+### Planner
+
+A component that finds a path from known facts to a goal.
+
+The planner chooses which fact providers and actions could satisfy a command,
+and in what order.
+
+### Plan
+
+An inspectable proposed route from current facts to a goal.
+
+A plan should show the steps, missing facts, required capabilities, trust levels,
+and side effects before risky execution.
+
+### Runner
+
+The component that executes an approved plan.
+
+The runner should follow the plan, report failures clearly, and avoid silent side
+effects.
+
+### Reachability Index
+
+A map of what facts and effects can be reached from which known facts,
+capabilities, providers, and actions.
+
+The reachability index helps the planner answer "what can I do from here?"
+
 ### Resolver
 
-A way of finding a path from known information to a desired outcome.
+Avoid using this as the Commandbook term for path-finding.
 
-Resolvers let the user ask for an outcome without manually naming every step.
+In Pathom, a resolver is closer to a Commandbook fact provider: it declares the
+facts it needs and the facts it can provide. In Commandbook, use planner for
+path-finding.
 
 ### Help
 

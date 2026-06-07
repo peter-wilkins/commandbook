@@ -61,6 +61,13 @@ embarrassing, or dangerous action.
 The user's command language should not be locked to one phone app, automation
 tool, browser, AI provider, or operating system.
 
+### Planning Is Separate From Providing
+
+A fact provider knows how to produce a fact. An action knows how to create a side
+effect. The planner decides which providers and actions can satisfy a goal.
+
+Do not call the planner a resolver.
+
 ### Domain Language Matters
 
 The words in the commandbook become the product. If the language is sloppy, the
@@ -68,8 +75,9 @@ automation will be sloppy.
 
 ### Complexity Requires Proof
 
-Resolvers, schemas, trust models, and pipelines are useful only when they make a
-real command safer, clearer, or faster. Add them in response to observed need.
+Planners, indexes, schemas, trust models, and pipelines are useful only when they
+make a real command safer, clearer, or faster. Add them in response to observed
+need.
 
 ## Early Shape
 

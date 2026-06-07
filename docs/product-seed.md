@@ -11,9 +11,9 @@ local/source-captures/waterproof-case-chatgpt.txt
 ## One Sentence
 
 Commandbook is a permissioned, inspectable shell for human tasks: the user states
-intent, AI plans a safe command pipeline, and every command is constrained by
-declared capabilities, trust level, inputs, outputs, tests, and dry-run
-behaviour.
+intent, the planner builds a safe command pipeline, and every command is
+constrained by declared capabilities, trust level, inputs, outputs, tests, and
+dry-run behaviour.
 
 ## Why This Matters
 
@@ -126,12 +126,12 @@ record_audio | transcribe | classify | save_job
 
 This turns the assistant into a human-task shell, not a generic chatbot.
 
-### Resolver Graph
+### Planning Graph
 
 The system can be Pathom-like:
 
 ```text
-known inputs + desired outputs -> resolver graph -> execute steps -> replace
+known facts + desired goal -> planning graph -> execute steps -> replace
 steps with data -> finish or fail inspectably
 ```
 
@@ -145,6 +145,10 @@ want:
 ```
 
 The command is not a hard-coded script. It is a desired end state.
+
+Terminology note: Pathom calls the small input-to-output operations resolvers.
+Commandbook calls those fact providers. The thing that finds the route is the
+planner.
 
 ## Product Hypothesis
 
@@ -161,6 +165,6 @@ wants technology to help them.
    control app, shell scripts, or JobDone actions?
 5. What trust level must be implemented first?
 6. What does the command schema need to include for a useful dry-run?
-7. Is the resolver graph needed in V1, or should V1 use explicit pipelines?
+7. Is the planning graph needed in V1, or should V1 use explicit pipelines?
 8. How does a user inspect, test, and edit commands without becoming a
    programmer?
