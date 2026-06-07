@@ -68,6 +68,12 @@ Drivers are captured in [`docs/driver-contract.md`](driver-contract.md).
 Resumable setup graphs are captured in
 [`docs/resumable-setup-graphs.md`](resumable-setup-graphs.md).
 
+The coffee grinder run model is captured in
+[`docs/coffee-grinder-run-model.md`](coffee-grinder-run-model.md).
+
+Deno permission-model research is captured in
+[`docs/research-deno-permissions.md`](research-deno-permissions.md).
+
 ### Trust Levels
 
 Suggested first draft:

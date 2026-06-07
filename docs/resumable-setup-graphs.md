@@ -28,6 +28,9 @@ facts + goal -> planner -> plan -> runner -> checkpoint/result
 
 The coffee grinder is the resumable loop around planning and execution.
 
+See [`coffee-grinder-run-model.md`](coffee-grinder-run-model.md) for the fuller
+run model.
+
 It owns:
 
 - the current goal
