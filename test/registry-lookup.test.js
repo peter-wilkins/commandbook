@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  CapabilityRequirementSchema,
   FactKeySchema,
   GraphEdgeSchema,
   ImplementationBindingSchema,
@@ -8,6 +9,35 @@ import {
   findGraphEdges,
   findImplementationBindings
 } from '../src/core/registry.js'
+
+test('capability requirements keep power separate from runtime grants', () => {
+  const requirement = CapabilityRequirementSchema.parse({
+    capabilityKey: 'message/send',
+    scopeFactKeys: ['contact/recipient', 'message/body'],
+    purpose: 'Send the approved message.'
+  })
+
+  assert.deepEqual(requirement, {
+    capabilityKey: 'message/send',
+    scopeFactKeys: ['contact/recipient', 'message/body'],
+    purpose: 'Send the approved message.'
+  })
+
+  assert.deepEqual(
+    CapabilityRequirementSchema.parse({ capabilityKey: 'location/read_current' }),
+    {
+      capabilityKey: 'location/read_current',
+      scopeFactKeys: []
+    }
+  )
+
+  assert.throws(() =>
+    CapabilityRequirementSchema.parse({
+      capabilityKey: 'send_message',
+      scopeFactKeys: ['contact/recipient']
+    })
+  )
+})
 
 test('registry finds graph edges by namespaced fact signature', () => {
   const edges = [

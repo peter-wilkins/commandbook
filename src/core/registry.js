@@ -17,6 +17,13 @@ export const SnakeCaseIdSchema = z
 export const FactKeySchema = NamespacedKeySchema
 export const EffectKeySchema = NamespacedKeySchema
 export const OperationIdSchema = NamespacedKeySchema
+export const CapabilityKeySchema = NamespacedKeySchema
+
+export const CapabilityRequirementSchema = z.object({
+  capabilityKey: CapabilityKeySchema,
+  scopeFactKeys: z.array(FactKeySchema).default([]),
+  purpose: z.string().min(1).optional()
+})
 
 export const GraphEdgeSchema = z.object({
   edgeId: SnakeCaseIdSchema,

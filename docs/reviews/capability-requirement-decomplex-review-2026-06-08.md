@@ -126,9 +126,10 @@ requirement + current facts + active grants + safety policy -> scoped handles or
 The broker is the enforcement boundary. If it only records nice intentions, the
 security model is documentation rather than protection.
 
-## Proposed Zod Schema For Review
+## Approved Zod Schema
 
-Do not implement this until Peter approves the shape.
+Peter approved this shape on 2026-06-08. It is implemented in
+`src/core/registry.js`.
 
 ```js
 export const CapabilityKeySchema = NamespacedKeySchema
@@ -158,11 +159,10 @@ Test only the shape and the matching boundary:
 1. Parse a requirement with a namespaced capability key.
 2. Reject non-namespaced capability keys.
 3. Preserve scope fact keys as fact references.
-4. Given a requirement and current facts, produce a scoped request for the
-   broker.
-5. Keep grant matching out of this schema test.
+4. Keep grant matching out of this schema test.
 
 ## Next Slice
 
-Ask Peter to approve or adjust the proposed schema, then implement
-`CapabilityKeySchema` and `CapabilityRequirementSchema` with one parser test.
+Design the next record separately. Likely next candidates are `CapabilityGrant`
+or a tiny broker-scoped request shape, but do not add either until the split is
+reviewed.
