@@ -6,6 +6,11 @@ The water-trip logger does not need a Firebase-specific command or a new backend
 inside Commandbook. It needs a few reusable operations plus a resumable schedule
 pattern.
 
+The command recipe must stay platform-neutral. Phone runtimes, server runtimes,
+Linux cron, and browser PWAs can all implement scheduling differently. The
+recipe should describe what should run and under what policy, not how a specific
+operating system wakes up.
+
 ## Useful Operations
 
 ### `get_location`
@@ -112,13 +117,60 @@ schedule:
   every_seconds: 60
   max_ticks: null
   stop_key: stop/water_trip_2026_06_08
-child:
-  command: water_trip_tick
-  args:
-    session_id: water_trip_2026_06_08
+children:
+  - command: save_local_rich_location
+    args:
+      session_id: water_trip_2026_06_08
+  - command: ping_server_location
+    args:
+      session_id: water_trip_2026_06_08
 ```
 
-The scheduler owns timing and repetition. The child command owns the useful work.
+The scheduler owns timing and repetition. Child commands own the useful work.
+
+Keeping local save and server ping separate is intentional. The local truth path
+can continue even if the live upload path fails.
+
+## Scheduler Inspiration
+
+Two Clojure schedulers are useful references:
+
+- Chime: https://github.com/jarohen/chime
+- at-at: https://github.com/overtone/at-at
+
+Chime's useful idea is that a schedule is a sequence of instants plus a callback.
+That keeps the scheduler small and composable. Commandbook should borrow the
+shape, but replace callback functions with serializable command references.
+
+at-at's useful ideas are:
+
+- one-off scheduling
+- fixed-rate repetition
+- fixed-delay repetition after the previous job completes
+- stop versus kill
+- named/described jobs that can be inspected
+
+Commandbook should expose the policy explicitly:
+
+```yaml
+schedule:
+  mode: fixed_rate
+  every_seconds: 60
+  overrun_policy: skip_if_previous_running
+```
+
+Other valid policies can be added when needed:
+
+```yaml
+overrun_policy:
+  - skip_if_previous_running
+  - queue_one
+  - run_after_previous_finishes
+  - fail_schedule
+```
+
+Do not invent cron syntax yet. Start with simple periodic schedules and named
+policies.
 
 ## Scheduler State
 
@@ -133,7 +185,9 @@ completed_ticks: 42
 next_due_at: "2026-06-08T08:43:00Z"
 last_started_at: "2026-06-08T08:42:00Z"
 last_finished_at: "2026-06-08T08:42:02Z"
-last_child_run_id: water_trip_tick_42
+last_child_run_ids:
+  save_local_rich_location: save_local_rich_location_42
+  ping_server_location: ping_server_location_42
 stop_key: stop/water_trip_2026_06_08
 ```
 
@@ -144,6 +198,59 @@ The scheduler should checkpoint:
 - before starting a child command
 - after the child command completes or fails
 - when stop is requested
+
+## Bounded State
+
+A scheduled run must not grow forever.
+
+The coffee grinder should keep counters, high-water marks, and recent summaries,
+not every successful tick.
+
+Good:
+
+```yaml
+completed_ticks: 420
+failed_ticks: 3
+last_successful_tick: 420
+last_error_tick: 318
+recent_ticks:
+  max_items: 10
+```
+
+Bad:
+
+```yaml
+all_ticks:
+  - tick_1_full_result
+  - tick_2_full_result
+  - ...
+```
+
+Detailed tick evidence belongs in child run records, local data files, or error
+capsules. Once an error path is resolved, the schedule summary can be compacted
+back down to counters and the final resolution.
+
+This keeps the scheduler inspectable without turning one long-running coffee
+grinder into a giant in-memory object.
+
+## Scheduler Driver
+
+The scheduler is a driver, not a special all-powerful coffee grinder.
+
+Its job is to:
+
+- calculate the next due time
+- wake or be called by the platform runtime
+- start bounded child command runs
+- record summary state
+- apply stop/overrun/error policy
+
+It should not:
+
+- hold every tick result in memory
+- become a hidden backend
+- know about Firebase, maps, or water trips
+- silently retry forever without recording policy
 
 ## Interrupt Mechanism
 
@@ -174,24 +281,30 @@ Ctrl-C should do the same best-effort checkpoint locally:
 received SIGINT -> write interruption checkpoint -> exit
 ```
 
-This is enough for the first Linux slice. Android can map the same idea to a
-stop button in the foreground-service notification later.
+This is enough for the first local slice. Each platform runtime can map the same
+idea to its own stop mechanism later.
 
-## Water Trip Tick
+## Water Trip Child Commands
 
-The repeated child command should stay small:
+The repeated child commands should stay small:
 
 ```yaml
-command: water_trip_tick
+command: save_local_rich_location
 steps:
   - get_location
   - append_local_location_record
+```
+
+```yaml
+command: ping_server_location
+steps:
+  - get_location
   - http_post_live_location
   - checkpoint_upload_receipt
 ```
 
-The upload can fail without failing the trip. Local append is the truth path.
-HTTP upload is only the live path.
+The upload can fail without failing local capture. Local append is the truth
+path. HTTP upload is only the live path.
 
 ## Scope Boundary
 
@@ -206,7 +319,7 @@ Build now:
 Do not build yet:
 
 - Firebase-specific operation
-- Android foreground service
+- platform-specific phone wakeup implementation
 - rich IMU logging
 - map UI
 - multi-user viewer

@@ -83,6 +83,9 @@ The coffee grinder run model is captured in
 Scheduled runs and interruption are captured in
 [`docs/scheduled-runs-and-interrupts.md`](scheduled-runs-and-interrupts.md).
 
+Android wakeup/runtime notes are captured in
+[`docs/platform-android-wakeup-notes.md`](platform-android-wakeup-notes.md).
+
 Deno permission-model research is captured in
 [`docs/research-deno-permissions.md`](research-deno-permissions.md).
 

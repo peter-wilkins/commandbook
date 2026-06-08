@@ -7,7 +7,7 @@ This example was seeded from the local ChatGPT capture:
 ```
 
 The core idea is a reliable water-trip tracker that records location and sensor
-data during a session, keeps working through Android/network trouble, and can
+data during a session, keeps working through runtime/network trouble, and can
 export the truth afterwards.
 
 ## Why This Is A Good Commandbook Test
@@ -18,7 +18,7 @@ It needs:
 
 - scheduled wakeups
 - local durable state
-- foreground Android execution
+- platform runtime execution
 - network retry and backfill
 - session checkpoints
 - sequence numbers
@@ -84,13 +84,20 @@ schedule_each -> runner pattern
 stop -> cooperative interrupt
 ```
 
-## Android Execution Model
+## Platform Runtime Note
 
-For every-minute tracking, do not rely on periodic WorkManager.
+The command recipe should not depend on Android, Firebase, Tailscale, or any
+other concrete implementation.
 
-Android WorkManager periodic work has a minimum interval, and it is not intended
-for precise once-a-minute live tracking. Use a foreground service for the active
-trip instead.
+The runtime question is separate:
+
+```text
+Can this platform wake reliably often enough, run the child commands, checkpoint,
+and recover after process death?
+```
+
+On phones, this will need platform-specific research and testing. Keep that in a
+runtime note or driver doc, not in the command recipe.
 
 Relevant Android docs:
 
@@ -99,9 +106,11 @@ Relevant Android docs:
 - https://developer.android.com/develop/background-work/services/fgs/service-types
 - https://developer.android.com/develop/sensors-and-location/location/background
 
-Foreground service requirements matter, especially on recent Android versions.
-The app should declare the correct foreground service type for location, show a
-persistent notification, and make the tracking state obvious to the user.
+These links are implementation input for a later phone driver, not part of the
+Commandbook recipe contract.
+
+Android wakeup notes are kept separately in
+[`../platform-android-wakeup-notes.md`](../platform-android-wakeup-notes.md).
 
 ## Local Files
 
@@ -147,7 +156,7 @@ MVP record:
 Good for a local experiment.
 
 ```text
-Android app -> HTTP POST -> laptop tailnet server -> JSONL
+Phone app -> HTTP POST -> laptop tailnet server -> JSONL
 ```
 
 Weakness: Tailscale becomes part of the reliability test. If Tailscale sleeps or
@@ -158,7 +167,7 @@ drops, the live path fails even if normal internet might have worked.
 Good for an MVP with less server work.
 
 ```text
-Android app -> Firebase Realtime Database -> viewer/export later
+Phone app -> Firebase Realtime Database -> viewer/export later
 ```
 
 Firebase can help with offline writes and later sync, but backfilled sync is not
@@ -176,8 +185,8 @@ Use rules/auth. Do not leave a public unauthenticated write endpoint.
 4. Start foreground tracking service.
 5. Every tick:
    a. collect location
-   b. append local record
-   c. enqueue live upload
+   b. run save_local_rich_location
+   c. run or enqueue ping_server_location
    d. checkpoint run state
 6. Upload loop:
    a. send queued live points when network exists
@@ -211,7 +220,7 @@ facts:
   last_live_upload_seq: 148
   upload_backlog_count: 4
 queue:
-  - collect_location_tick
+  - schedule_each
   - flush_live_uploads
 receipts:
   - local_record_written
@@ -266,7 +275,7 @@ High-rate sensor data should be local-only during the session, then exported.
 
 ## First Build Slice
 
-Do not start by building the Android app.
+Do not start by building the phone app.
 
 First Commandbook slice:
 
@@ -283,10 +292,11 @@ It can run on Linux and simulate:
 - recovery
 - final export
 
-Then move the same run model into Android once the state machine is boring.
+Then move the same run model into a phone runtime once the state machine is
+boring.
 
 This follows the same rule as the git identity example: prove the coffee grinder
-locally before fighting Android deployment and battery policy.
+locally before fighting phone deployment and battery policy.
 
 The first slice should prove interruption too:
 
