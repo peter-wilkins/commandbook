@@ -88,17 +88,21 @@ Example:
 capability_requirements:
   - capability_key: location/read_current
     scope_fact_keys:
-      - device/current_location
+      - device/id
     purpose: Estimate route and arrival time.
   - capability_key: message/send
     scope_fact_keys:
       - contact/recipient
-      - message/body
+      - message/channel
     purpose: Send the approved message.
 ```
 
 The operation says "I need this class of power, scoped by these facts." It does
 not say whether that power is granted.
+
+Scope fact keys should bind the permission, not duplicate the side-effect
+approval. For example, a message body belongs in the dry-run approval, not in the
+reusable capability grant.
 
 ### Capability Grant
 

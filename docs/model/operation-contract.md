@@ -79,11 +79,10 @@ provides:
 capability_requirements:
   - capability_key: location/read_current
     scope_fact_keys:
-      - device/current_location
+      - device/id
     purpose: Estimate the user's route and arrival time.
   - capability_key: routing/estimate_travel_time
     scope_fact_keys:
-      - device/current_location
       - place/destination
     purpose: Estimate the user's arrival time.
 driver_requirements:
@@ -145,7 +144,7 @@ capability_requirements:
   - capability_key: message/send
     scope_fact_keys:
       - contact/recipient
-      - message/body
+      - message/channel
     purpose: Send the approved message.
 driver_requirements:
   - messaging_driver

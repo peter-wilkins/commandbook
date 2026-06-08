@@ -43,7 +43,7 @@ provides:
 capability_requirements:
   - capability_key: location/read_current
     scope_fact_keys:
-      - device/current_location
+      - device/id
     purpose: Read the current location sample.
 driver_requirements:
   - location_driver
@@ -77,7 +77,6 @@ capability_requirements:
   - capability_key: network/post
     scope_fact_keys:
       - network/endpoint_url
-      - network/request_body
     purpose: Upload the prepared payload.
 driver_requirements:
   - http_driver

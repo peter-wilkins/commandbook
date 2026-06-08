@@ -205,15 +205,24 @@ only when matched by active capability grants in the local runtime.
 
 ### Capability Grant
 
-A recorded permission from the human or runtime policy allowing a capability to
-be used within a stated scope.
+An active permission from the human or runtime policy allowing a capability to be
+used within a stated scope.
 
-Grants may be narrow, temporary, reusable, denied, revoked, or expired.
+Grants may be narrow, temporary, reusable, or expired. Denials and revocations
+belong in the capability ledger, then the active grant projection changes.
+
+### Scoped Capability Request
+
+A runtime request produced by resolving a capability requirement against current
+facts.
+
+The request is what the broker checks against active grants. It contains no
+grant decision, approval result, driver choice, or safety policy.
 
 ### Capability Broker
 
 The runtime component that compares operation capability requirements with
-active capability grants.
+scoped capability requests and active capability grants.
 
 The broker should refuse missing capabilities, request new grants when allowed,
 and provide only scoped handles to operations that are approved to run.
