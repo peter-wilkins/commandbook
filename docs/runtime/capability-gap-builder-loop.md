@@ -66,8 +66,8 @@ The cleanest gap description is an input/output signature:
 have:
   facts:
     - youtube.video/id
-  capabilities:
-    - send_network_request
+  capability_grants:
+    - network/send_request
 need:
   facts:
     - youtube.video/transcript
@@ -105,8 +105,8 @@ Gap fillers should be searchable by type signature:
 requires:
   facts:
     - input fact keys
-  capabilities:
-    - allowed capability names
+  capability_requirements:
+    - requirement records or capability keys
 provides:
   facts:
     - output fact keys

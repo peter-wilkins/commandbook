@@ -208,8 +208,11 @@ provides:
   - device_model
   - android_api_level
   - settings_app_package
-capabilities:
-  - inspect_android_device
+capability_requirements:
+  - capability_key: android/inspect_device
+    scope_fact_keys:
+      - device/id
+    purpose: Identify which Android settings route catalogue applies.
 failure_cases:
   - device_not_connected
   - device_locked
@@ -233,8 +236,13 @@ provides:
   - settings_intent
   - route_confidence
   - human_steps
-capabilities:
-  - inspect_route_catalog
+capability_requirements:
+  - capability_key: android/inspect_route_catalog
+    scope_fact_keys:
+      - android/device_model
+      - android/api_level
+      - configuration/target
+    purpose: Find a likely settings route for this device and target.
 failure_cases:
   - no_known_route
   - conflicting_routes
@@ -252,8 +260,11 @@ effects:
   - settings_screen_opened
 provides:
   - opened_screen
-capabilities:
-  - open_android_settings
+capability_requirements:
+  - capability_key: android/open_settings
+    scope_fact_keys:
+      - android/settings_intent
+    purpose: Open the relevant settings screen without changing the setting.
 dry_run:
   must_show:
     - settings_intent
@@ -282,8 +293,13 @@ requires:
   - android_api_level
 effects:
   - route_cached
-capabilities:
-  - cache_route
+capability_requirements:
+  - capability_key: android/cache_setting_route
+    scope_fact_keys:
+      - android/device_model
+      - android/api_level
+      - configuration/target
+    purpose: Cache a verified route for this device profile.
 dry_run:
   must_show:
     - route

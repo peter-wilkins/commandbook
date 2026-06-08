@@ -266,8 +266,11 @@ effects:
   - configuration_surface_opened
 provides:
   - opened_surface
-capabilities:
-  - open_configuration_surface
+capability_requirements:
+  - capability_key: configuration/open_surface
+    scope_fact_keys:
+      - configuration/surface
+    purpose: Open the configuration surface without changing the setting.
 approval:
   required: true
 idempotency:

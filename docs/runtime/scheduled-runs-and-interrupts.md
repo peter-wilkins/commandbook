@@ -40,8 +40,11 @@ kind: query
 requires: []
 provides:
   - current_location
-capabilities:
-  - read_location
+capability_requirements:
+  - capability_key: location/read_current
+    scope_fact_keys:
+      - device/current_location
+    purpose: Read the current location sample.
 driver_requirements:
   - location_driver
 freshness:
@@ -70,8 +73,12 @@ provides:
   - response_status
   - response_body
   - sent_at
-capabilities:
-  - network_post
+capability_requirements:
+  - capability_key: network/post
+    scope_fact_keys:
+      - network/endpoint_url
+      - network/request_body
+    purpose: Upload the prepared payload.
 driver_requirements:
   - http_driver
 idempotency:
@@ -106,8 +113,12 @@ effects:
   - credential_available
 provides:
   - auth_token_ref
-capabilities:
-  - manage_local_credentials
+capability_requirements:
+  - capability_key: credential/manage_local
+    scope_fact_keys:
+      - auth/provider
+      - auth/required_scope
+    purpose: Ensure local credentials exist for later requests.
 failure_cases:
   - human_login_required
   - token_expired

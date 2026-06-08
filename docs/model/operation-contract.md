@@ -25,9 +25,13 @@ Facts that must be available before the operation can run.
 
 Facts that may improve the operation but are not required.
 
-### Capabilities
+### Capability Requirements
 
-Capabilities the operation needs.
+The Commandbook capabilities the operation needs before it may run.
+
+These are requirements, not grants. A requirement says what power the operation
+needs. The local runtime's capability broker decides whether an active grant
+satisfies that requirement for the current facts, device, and human.
 
 ### Driver Requirements
 
@@ -72,9 +76,16 @@ requires:
 provides:
   - eta
   - route_summary
-capabilities:
-  - read_location
-  - estimate_travel_time
+capability_requirements:
+  - capability_key: location/read_current
+    scope_fact_keys:
+      - device/current_location
+    purpose: Estimate the user's route and arrival time.
+  - capability_key: routing/estimate_travel_time
+    scope_fact_keys:
+      - device/current_location
+      - place/destination
+    purpose: Estimate the user's arrival time.
 driver_requirements:
   - maps_or_routing_driver
 freshness:
@@ -130,8 +141,12 @@ effects:
 provides:
   - message_id
   - sent_at
-capabilities:
-  - send_message
+capability_requirements:
+  - capability_key: message/send
+    scope_fact_keys:
+      - contact/recipient
+      - message/body
+    purpose: Send the approved message.
 driver_requirements:
   - messaging_driver
 dry_run:
