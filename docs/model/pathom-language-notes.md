@@ -11,6 +11,8 @@ Sources:
 - https://pathom3.wsscode.com/docs/indexes/
 - https://pathom3.wsscode.com/docs/nouns/
 - https://pathom3.wsscode.com/docs/mutations/
+- https://pathom3.wsscode.com/docs/integrations/graphql/
+- https://pathom3.wsscode.com/media/
 
 ## Useful Pathom Concepts
 
@@ -37,6 +39,30 @@ a query can compute or sense it from other facts.
 
 Command arguments are one source of initial facts. They follow the CLI model:
 named inputs, required or optional, with optional defaults.
+
+### Namespaced Attribute
+
+Pathom leans heavily on namespaced keys, such as `:acme.product/id` or
+`:acme.product/price`.
+
+Commandbook equivalent: `Fact Key` plus `Fact Namespace`.
+
+This matters once the commandbook can wire in many resources. A generic request
+like "find me a video" should not collapse every provider into the same
+unqualified `video/id`. You want facts that can retain provenance and resource
+shape:
+
+```text
+youtube.video/id
+youtube.video/title
+youtube.channel/id
+vimeo.video/id
+local.video/path
+```
+
+The namespace is not just naming hygiene. It is a planning clue. If the context
+contains `youtube.video/id`, the reachability index can discover YouTube-specific
+facts and operations without pretending they apply to every video source.
 
 ### Planner
 
@@ -78,6 +104,24 @@ This index answers questions like:
 - What mutations can be run from the facts and permissions I already have?
 - What is missing before a command can run?
 
+Pathom also exposes indexes in the other direction: given a set of inputs, what
+outputs are directly reachable? That shape is useful for Commandbook registry
+search, autocomplete, and gap-agent work.
+
+Commandbook should be able to ask:
+
+```text
+I have these facts and capabilities.
+What commands, queries, mutations, setup graphs, or drivers become available?
+```
+
+And:
+
+```text
+I need this fact or effect.
+What providers can produce it, and what inputs are missing?
+```
+
 ### Mutation
 
 In Pathom, mutations are the write side and usually perform side effects.
@@ -95,11 +139,30 @@ Commandbook equivalent: `Goal`.
 
 The human says an intent. The system turns that into a machine-readable goal.
 
+### Rootless Entry
+
+GraphQL commonly enters through root `Query` or `Mutation` fields. Pathom's
+interesting move is that the graph is primarily about reachable attributes. When
+integrating GraphQL, Pathom imports the GraphQL query type specially so its
+properties become accessible from anywhere, but Pathom itself does not force
+Commandbook-style work to start from one central root object.
+
+Commandbook should borrow the rootless idea:
+
+```text
+known facts + desired facts/effects -> plan
+```
+
+The starting point is not a hard-coded API root. The starting point is the
+current context: command arguments, ambient facts, cached setup state, receipts,
+and allowed capabilities.
+
 ## Proposed Commandbook Vocabulary
 
 | Pathom term | Commandbook term | Why |
 | --- | --- | --- |
 | Attribute | Fact | More human, works beyond data APIs |
+| Namespaced attribute | Namespaced fact key | Avoids collisions and keeps provider provenance |
 | Resolver | Query | Aligns with GraphQL-style read-side operation |
 | Mutation | Mutation | Aligns with GraphQL-style write-side operation |
 | Planner | Planner | Same meaning, good fit |
@@ -119,7 +182,7 @@ Intent -> Goal -> Planner -> Plan -> Dry Run -> Approval -> Runner -> Result
 The planner consults:
 
 ```text
-Facts + Queries + Mutations + Capabilities + Trust Levels + Drivers
+Facts + Queries + Mutations + Capabilities + Trust Levels + Drivers + Registry
 ```
 
 This keeps the terms tight:
@@ -128,6 +191,51 @@ This keeps the terms tight:
 - Mutations create side effects.
 - The planner finds the route.
 - The runner executes the approved route.
+
+## Why Pathom Is A Better Fit Than Plain GraphQL
+
+GraphQL is excellent when a service owner can define a stable schema and clients
+enter through explicit query and mutation roots.
+
+Commandbook's harder problem is different:
+
+- facts arrive from many places
+- drivers and setup state vary by platform
+- missing pieces may be built later
+- goals may start from any known fact, not one API root
+- the registry needs reverse lookup by required and produced facts
+
+Pathom's input/output attribute model fits this better. A provider can say:
+
+```yaml
+requires:
+  - youtube.video/id
+provides:
+  - youtube.video/title
+  - youtube.video/transcript
+```
+
+Another provider can say:
+
+```yaml
+requires:
+  - youtube.video/transcript
+provides:
+  - generic.summary/text
+```
+
+The planner can then compose the route without either provider knowing about the
+whole product workflow.
+
+This is also why capability gaps can be precise. A gap is not "build video
+support". It is:
+
+```text
+Need: generic.summary/text
+Have: youtube.video/id
+Missing: provider path from youtube.video/id to youtube.video/transcript,
+or from youtube.video/transcript to generic.summary/text
+```
 
 ## Implementation Stance
 

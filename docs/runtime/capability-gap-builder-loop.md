@@ -60,6 +60,71 @@ Examples:
 - no verifier can prove an effect happened
 - a previously working driver no longer works because the world changed
 
+The cleanest gap description is an input/output signature:
+
+```yaml
+have:
+  facts:
+    - youtube.video/id
+  capabilities:
+    - send_network_request
+need:
+  facts:
+    - youtube.video/transcript
+or:
+  effects:
+    - message_sent
+missing:
+  provider_path: true
+```
+
+This gives the capability agent a bounded job. It is not asked to "make video
+work". It is asked to find or build a provider path from known inputs to required
+outputs, under the current capability and safety rules.
+
+## Gap Filler
+
+A gap filler is the smallest new piece, or graph of pieces, that can close a
+capability gap.
+
+It can be:
+
+- a command contract
+- a query contract
+- a mutation contract
+- a driver contract
+- a driver implementation
+- a setup graph
+- a verifier
+- a fake driver
+- a test
+
+Gap fillers should be searchable by type signature:
+
+```yaml
+requires:
+  facts:
+    - input fact keys
+  capabilities:
+    - allowed capability names
+provides:
+  facts:
+    - output fact keys
+  effects:
+    - effect names
+```
+
+This is deliberately similar to searching for functions by type signature. The
+registry should answer:
+
+```text
+Given what I have, what can produce what I need?
+```
+
+Namespaced fact keys make this practical. `youtube.video/id` and
+`local.video/path` may both represent videos, but they open different provider
+paths.
+
 ## Failure Capsule
 
 When a run fails, the coffee grinder should capture a failure capsule.
@@ -99,16 +164,23 @@ A capability agent responds to a capability gap or failure capsule.
 First steps:
 
 ```text
-1. Search the shared registry and open PRs for this failure signature.
-2. If a patch exists, apply it locally at low trust.
-3. Run fake-driver and regression tests.
-4. Try to complete the original coffee grinder run.
-5. If it works, record validation evidence.
-6. If no patch exists, create one.
+1. Read the gap signature: available facts, required facts/effects, allowed
+   capabilities, selected platform, and safety constraints.
+2. Search the shared registry and open PRs for a matching provider path or
+   failure signature.
+3. If a patch exists, apply it locally at low trust.
+4. Run fake-driver and regression tests.
+5. Try to complete the original coffee grinder run.
+6. If it works, record validation evidence.
+7. If no patch exists, create the smallest gap filler.
 ```
 
 Capability agents are not allowed to silently publish private state. They repair
 the generic capability and keep Peter-specific evidence local or redacted.
+
+The capability agent should prefer existing provider paths over new invention.
+New code is justified only when the registry cannot satisfy the declared
+signature with existing pieces.
 
 ## Builder Agent
 
@@ -206,6 +278,17 @@ setup-graphs/
 tests/
 examples/
 ```
+
+Registry lookup should support both human search and planner search:
+
+- by command name or intent
+- by required facts
+- by produced facts
+- by produced effects
+- by capability
+- by platform
+- by setup requirement
+- by failure signature
 
 The coffee grinder can install from the registry, but new or updated pieces
 should still be checked against local capability policy before use.

@@ -76,6 +76,21 @@ planning graph fails.
 Examples include current location, contact phone number, ETA, captured note text,
 or weather forecast.
 
+### Fact Key
+
+The stable name of a fact.
+
+Fact keys should be specific enough to avoid collisions when many resources,
+apps, devices, users, and services are wired into the same commandbook.
+
+### Fact Namespace
+
+The owner or domain prefix of a fact key.
+
+Namespaces let many connected resources describe similar facts without
+colliding. They also help the planner and registry understand where a fact came
+from and what other facts may be reachable through it.
+
 ### Operation
 
 A query or mutation that can appear in a plan.
@@ -181,6 +196,14 @@ money, or starting an emergency action.
 The thing that can perform a capability in a particular environment.
 
 Drivers are replaceable. The commandbook should outlive any one driver.
+
+### Capability Provider
+
+A driver or package that advertises it can satisfy a capability under stated
+conditions.
+
+Capability providers should be discoverable by their required facts, produced
+facts or effects, platform support, safety rules, and setup requirements.
 
 ### Driver Contract
 
@@ -320,6 +343,14 @@ relationships.
 
 A missing command, query, mutation, driver, setup graph, verifier, or permission
 that prevents the planner from satisfying a goal.
+
+### Gap Filler
+
+A commandbook piece that can close a capability gap.
+
+A gap filler may be one command, a query, a mutation, a driver, a setup graph, a
+test, or a small graph of those pieces. It should be described by the facts and
+capabilities it requires and the facts or effects it can produce.
 
 ### Failure Capsule
 

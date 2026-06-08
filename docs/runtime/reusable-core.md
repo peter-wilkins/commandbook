@@ -86,6 +86,43 @@ Bring in TypeScript later when one of these becomes true:
 - tests reveal shape bugs that types would catch
 - the package becomes public enough that type contracts help users
 
+## Boundary Schemas
+
+Use Zod at serialized, plugin, and platform boundaries.
+
+Zod schemas should be the source of truth. TypeScript types should be inferred
+from those schemas rather than maintained separately.
+
+Good boundary records:
+
+```text
+RunContext
+QueueItem
+CommandContract
+OperationContract
+DriverContract
+PlatformRuntimeRegistration
+CapabilityProvider
+HumanRequirement
+EventEnvelope
+MutationReceipt
+RecoveryResult
+```
+
+Use runtime validation when data crosses a trust or durability boundary:
+
+- loading recipe files
+- loading run state from storage
+- receiving platform events
+- registering drivers or capability providers
+- reading mutation receipts
+- accepting human requirement responses
+- installing pieces from the shared registry
+
+Keep ordinary runner logic simple. Do not add types everywhere just for style.
+The proof value is at the boundaries where stale files, plugin code, platform
+adapters, or shared registry entries can drift.
+
 ## Core Data Types
 
 ### RunContext
@@ -282,9 +319,23 @@ A registry entry should eventually answer:
 - what capabilities it needs
 - what setup commands it may trigger
 - what platforms or drivers can run it
+- what fact keys it requires
+- what fact keys it provides
+- what effects it can create
+- what other registry entries can satisfy its missing inputs
 
 Packaging compiled drivers is a separate design problem. For now, drivers are
 local adapters referenced by recipe or operation name.
+
+The registry should support Pathom-style reverse lookup by signature:
+
+```text
+have facts A+B, need fact C -> candidate providers
+have fact X, want to know what is reachable -> candidate commands and queries
+```
+
+This is useful for both humans and agents. It powers command autocomplete, gap
+agent search, and "why can't this run?" explanations.
 
 ## Planner V0
 
