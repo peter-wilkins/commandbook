@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import test from 'node:test'
@@ -34,6 +34,80 @@ test('blog writing command consumes a ChatGPT share seed and pauses for intent g
     assert.equal(requirement.questions.length, 6)
     assert.match(requirement.prompt, /Who is this for/)
     assert.match(requirement.prompt, /do not publish raw private logs or imply Commandbook security is implemented/i)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('blog writing command writes a draft when intent answers are supplied', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'commandbook-blog-'))
+  try {
+    const seedPath = path.join(dir, 'hickey-share.html')
+    const blogRepo = path.join(dir, 'blog')
+    const intentPath = path.join(dir, 'intent.json')
+    await writeFile(seedPath, chatGptShareFixture(), 'utf8')
+    await writeFile(intentPath, JSON.stringify({
+      title: 'Before You Unleash the AI, De-Complect the Problem',
+      slug: 'before-you-unleash-the-ai-decomplex-the-problem',
+      tldr: 'AI makes feature soup cheap. Run a de-complect review before implementation.',
+      description: 'A practical note on keeping AI-assisted products coherent.',
+      takeaway: 'Keep product concepts untangled before asking agents to build.',
+      tags: ['ai-assisted-development', 'architecture']
+    }), 'utf8')
+
+    const result = await runCommand({
+      command: 'write_and_publish_blog_post',
+      args: {
+        site: 'continuumkit',
+        seed: seedPath,
+        intentFile: intentPath,
+        blogRepo
+      },
+      cwd: dir,
+      storeRoot: path.join(dir, '.commandbook')
+    })
+
+    assert.equal(result.status, 'complete')
+    const draftPath = path.join(blogRepo, 'src/content/posts/before-you-unleash-the-ai-decomplex-the-problem.md')
+    const draft = await readFile(draftPath, 'utf8')
+    assert.match(draft, /draft: true/)
+    assert.match(draft, /Before You Unleash the AI, De-Complect the Problem/)
+    assert.match(draft, /What have we tied together that could vary independently/)
+    assert.match(draft, /Only complexify for improvement/)
+    assert.equal(result.facts.blogDraft.path, draftPath)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('blog writing command refuses to overwrite an existing draft without explicit overwrite', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'commandbook-blog-'))
+  try {
+    const seedPath = path.join(dir, 'hickey-share.html')
+    const outputPath = path.join(dir, 'existing.md')
+    const intentPath = path.join(dir, 'intent.json')
+    await writeFile(seedPath, chatGptShareFixture(), 'utf8')
+    await writeFile(outputPath, 'existing', 'utf8')
+    await writeFile(intentPath, JSON.stringify({
+      title: 'Before You Unleash the AI, De-Complect the Problem',
+      slug: 'before-you-unleash-the-ai-decomplex-the-problem'
+    }), 'utf8')
+
+    const result = await runCommand({
+      command: 'write_and_publish_blog_post',
+      args: {
+        site: 'continuumkit',
+        seed: seedPath,
+        intentFile: intentPath,
+        output: outputPath
+      },
+      cwd: dir,
+      storeRoot: path.join(dir, '.commandbook')
+    })
+
+    assert.equal(result.status, 'paused_for_human')
+    assert.equal(result.humanRequirements.at(-1).id, 'blog_output_exists')
+    assert.equal(await readFile(outputPath, 'utf8'), 'existing')
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

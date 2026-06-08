@@ -1,19 +1,20 @@
 {
   "name": "write_and_publish_blog_post",
-  "description": "Consume a blog seed, load the site editorial profile, and pause for a Blog Intent Grill before drafting.",
-  "usage": "commandbook write_and_publish_blog_post --site continuumkit --seed https://chatgpt.com/share/... --dry-run",
+  "description": "Consume a blog seed, load the site editorial profile, pause for a Blog Intent Grill, then draft when intent answers are supplied.",
+  "usage": "commandbook write_and_publish_blog_post --site continuumkit --seed https://chatgpt.com/share/... --intent-file sites/continuumkit/blog-intents/hickey-decomplex-public.json --blog-repo /path/to/blog",
   "docs": [
     "docs/runtime/blog-writing-command.md"
   ],
   "defaultScope": "current_repo",
   "defaultSite": "continuumkit",
   "goal": {
-    "facts": ["blogIntentGrill"],
+    "facts": ["blogIntentGrill", "blogDraft"],
     "effects": []
   },
   "queue": [
     { "op": "load_blog_site_profile", "defaultSite": "continuumkit" },
     { "op": "consume_blog_seed" },
-    { "op": "prepare_blog_intent_grill" }
+    { "op": "prepare_blog_intent_grill" },
+    { "op": "draft_blog_post" }
   ]
 }

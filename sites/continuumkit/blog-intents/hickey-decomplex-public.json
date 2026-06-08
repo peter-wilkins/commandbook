@@ -1,0 +1,41 @@
+{
+  "title": "Before You Unleash the AI, De-Complect the Problem",
+  "slug": "before-you-unleash-the-ai-decomplex-the-problem",
+  "tldr": "AI makes feature soup cheap. Before asking an agent to build, run a quick de-complect review: name the concepts, split only the ones that vary independently, and demand proof that any extra moving part helps.",
+  "description": "A practical, public-safe Continuum Kit note on using Rich Hickey's simple-not-easy lens before AI-assisted implementation.",
+  "audience": "Smart outsiders who build or manage software with AI help, and can feel the pain of feature sprawl without needing private Continuum or Commandbook context.",
+  "takeaway": "AI makes it dangerously easy to add more stuff. The useful skill is keeping the product simple by untangling concepts before building.",
+  "postKind": "Philosophical explainer with practical examples.",
+  "evidence": [
+    "ChatGPT seed article about the Hickeyian way.",
+    "Rich Hickey's simple-versus-easy distinction.",
+    "Complecting as tying together concerns that should vary independently.",
+    "Unix small composable tools.",
+    "Clojure reusable functions over generic data and the Seq abstraction."
+  ],
+  "examples": [
+    "A note-taking app that turns into a task manager, calendar, CRM, and dashboard.",
+    "A settings object that absorbs permissions, UI state, billing, feature flags, and preferences.",
+    "An AI-generated prototype with ten plausible buttons but no obvious core action."
+  ],
+  "counterpoints": [
+    "Separating things is a guideline, not a religion.",
+    "Datomic's separately deployable pieces can still create operational pain."
+  ],
+  "mood": "Clear, warm, slightly wry, practical-philosophical, and not an architecture lecture.",
+  "sensitivity": [
+    "No raw logs.",
+    "No private agent or repo internals.",
+    "No screenshots of internal tools.",
+    "No claim that internal security or publishing systems are production-ready."
+  ],
+  "callToAction": "Next project you start, after grilling but before you set the AI off implementing, try the de-complect review skill.",
+  "tags": [
+    "ai-assisted-development",
+    "architecture",
+    "product-thinking",
+    "rich-hickey",
+    "complexity",
+    "decomplexing"
+  ]
+}
