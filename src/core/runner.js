@@ -1,6 +1,7 @@
 const PAUSED_STATUSES = new Set([
   'paused_for_setup',
   'paused_for_human',
+  'paused_for_event',
   'paused_for_approval',
   'failed',
   'cancelled',
@@ -76,4 +77,3 @@ function fail(ctx, item, error, adapters) {
     inProgress: []
   }
 }
-

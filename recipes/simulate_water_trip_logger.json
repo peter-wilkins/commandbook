@@ -1,0 +1,21 @@
+{
+  "name": "simulate_water_trip_logger",
+  "description": "Simulate a water-trip logger slice with local save, live ping, event pause, and resume.",
+  "usage": "commandbook simulate_water_trip_logger --network offline --yes",
+  "docs": [
+    "docs/examples/water-trip-location-logger.md",
+    "docs/runtime/runtime-events.md",
+    "docs/runtime/scheduled-runs-and-interrupts.md"
+  ],
+  "defaultScope": "local_simulator",
+  "goal": {
+    "facts": ["simulatedLocalRichPath", "simulatedLivePingPath"],
+    "effects": ["local_location_saved", "live_location_uploaded_when_network_available"]
+  },
+  "queue": [
+    { "op": "start_simulated_trip_session" },
+    { "op": "save_local_rich_location" },
+    { "op": "ping_server_location" },
+    { "op": "ask_are_you_happy" }
+  ]
+}

@@ -8,9 +8,11 @@ The first discovery commands are:
 commandbook list commands
 commandbook list runs
 commandbook list running
+commandbook list events
 commandbook status [run-key]
 commandbook help [command]
 commandbook help [command] --long
+commandbook emit wifi.available --fact network_kind=wifi
 ```
 
 `list commands` shows available command recipes.
@@ -19,8 +21,13 @@ commandbook help [command] --long
 
 `list running` filters saved runs to those that are not terminal.
 
+`list events` shows the local runtime event log.
+
 `status` prints the latest run by default, or a specific run if given a key or
 run id suffix.
+
+`emit <event-type>` appends a runtime event and wakes paused runs that subscribed
+to that event.
 
 `help <command>` reads recipe metadata. `help <command> --long` also shows the
 goal and queued operations.

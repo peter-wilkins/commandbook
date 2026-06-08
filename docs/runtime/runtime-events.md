@@ -160,17 +160,31 @@ recipes only see the event model.
 
 ## First Slice
 
-Build a local event bus for the Linux simulator:
+The first local event bus is implemented for the Linux simulator:
 
 ```bash
 commandbook emit wifi.available --fact network_kind=wifi
 commandbook list events
 commandbook status <run-id>
+commandbook simulate_water_trip_logger --network offline --yes
 ```
 
-Then prove:
+It proves:
 
 1. A paused run can subscribe to `wifi.available`.
 2. Emitting `wifi.available` wakes only that run.
 3. Duplicate events are safe.
 4. Event history stays bounded in the run state.
+
+The simulated logger writes a local rich-location record first. If the live ping
+path has no network, the run pauses with:
+
+```yaml
+status: paused_for_event
+waiting_for_events:
+  - wifi.available
+  - network.available
+```
+
+When a matching event is emitted, Commandbook resumes the same run and completes
+the pending upload branch.

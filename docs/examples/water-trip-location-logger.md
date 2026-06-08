@@ -283,6 +283,14 @@ First Commandbook slice:
 simulate_water_trip_logger
 ```
 
+CLI dogfood:
+
+```bash
+commandbook simulate_water_trip_logger --network offline --yes
+commandbook emit wifi.available --fact network_kind=wifi
+commandbook status
+```
+
 It can run on Linux and simulate:
 
 - one-minute ticks

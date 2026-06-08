@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { FileEventStore, createRuntimeEvent } from '../adapters/event-store.js'
 import { FileRunStore } from '../adapters/file-run-store.js'
 import { listRecipes, loadRecipe } from '../core/recipes.js'
-import { defaultRecipesDir, runCommand } from '../index.js'
+import { defaultRecipesDir, resumeRunsForEvent, runCommand } from '../index.js'
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 
@@ -28,6 +29,11 @@ async function main() {
 
   if (command === 'list') {
     await listCommand(args)
+    return
+  }
+
+  if (command === 'emit') {
+    await emitEvent(args)
     return
   }
 
@@ -66,13 +72,23 @@ function parseArgs(items) {
     const key = item.slice(2).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
     const next = items[i + 1]
     if (!next || next.startsWith('--')) {
-      args[key] = true
+      addArg(args, key, true)
     } else {
-      args[key] = next
+      addArg(args, key, next)
       i += 1
     }
   }
   return args
+}
+
+function addArg(args, key, value) {
+  if (args[key] === undefined) {
+    args[key] = value
+  } else if (Array.isArray(args[key])) {
+    args[key].push(value)
+  } else {
+    args[key] = [args[key], value]
+  }
 }
 
 async function listCommand(args) {
@@ -98,7 +114,45 @@ async function listCommand(args) {
     return
   }
 
+  if (target === 'events') {
+    await listEvents(args)
+    return
+  }
+
   throw new Error(`Unknown list target: ${target}`)
+}
+
+async function emitEvent(args) {
+  const type = args._?.[0]
+  if (!type) throw new Error('Usage: commandbook emit <event-type> [--fact key=value]')
+
+  const storeRoot = storeRootFromArgs(args)
+  const eventStore = new FileEventStore(storeRoot)
+  const event = createRuntimeEvent({
+    type,
+    facts: parseFacts(args.fact),
+    source: args.source ?? 'cli'
+  })
+  await eventStore.append(event)
+
+  const resumed = await resumeRunsForEvent({
+    event,
+    cwd: args.repo ?? process.cwd(),
+    storeRoot,
+    recipesDir: args.recipesDir ?? defaultRecipesDir
+  })
+
+  console.log(`event: ${event.type}`)
+  console.log(`event_id: ${event.eventId}`)
+  console.log(`resumed: ${resumed.length}`)
+  for (const ctx of resumed) console.log(`- ${ctx.status} ${ctx.runKey}`)
+}
+
+async function listEvents(args) {
+  const events = await new FileEventStore(storeRootFromArgs(args)).list()
+  for (const event of events) {
+    console.log(`${event.at} ${event.type} ${event.eventId}`)
+  }
 }
 
 async function listRuns(args, { onlyRunning = false } = {}) {
@@ -157,8 +211,30 @@ async function printCommandHelp(command, args) {
 }
 
 function createStore(args) {
+  return new FileRunStore(storeRootFromArgs(args))
+}
+
+function storeRootFromArgs(args) {
   const runCwd = args.repo ?? process.cwd()
-  return new FileRunStore(args.storeDir ?? path.join(runCwd, '.commandbook'))
+  return args.storeDir ?? path.join(runCwd, '.commandbook')
+}
+
+function parseFacts(value) {
+  const facts = {}
+  const values = Array.isArray(value) ? value : value === undefined ? [] : [value]
+  for (const entry of values) {
+    const [key, ...rest] = String(entry).split('=')
+    if (!key || rest.length === 0) throw new Error(`Invalid fact: ${entry}`)
+    facts[key] = parseScalar(rest.join('='))
+  }
+  return facts
+}
+
+function parseScalar(value) {
+  if (value === 'true') return true
+  if (value === 'false') return false
+  if (/^-?\d+(\.\d+)?$/.test(value)) return Number(value)
+  return value
 }
 
 async function loadRuns(store) {
@@ -180,6 +256,8 @@ function printHelp() {
 
 Usage:
   commandbook list [commands|runs|running]
+  commandbook list events
+  commandbook emit wifi.available --fact network_kind=wifi
   commandbook runs [--store-dir .commandbook]
   commandbook status [run-key]
   commandbook help [command] [--long]
@@ -226,6 +304,13 @@ function printRunSummary(ctx) {
     console.log('\nfailures:')
     for (const failure of ctx.failures) {
       console.log(`- ${failure.op}: ${failure.message}`)
+    }
+  }
+
+  if (ctx.waitingForEvents?.length > 0) {
+    console.log('\nwaiting for events:')
+    for (const event of ctx.waitingForEvents) {
+      console.log(`- ${event.type}: ${event.reason}`)
     }
   }
 }
