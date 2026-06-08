@@ -36,7 +36,7 @@ V0 help reads structured recipe metadata:
   "name": "git_push_current_branch",
   "description": "Push the current branch.",
   "usage": "commandbook git_push_current_branch --yes",
-  "docs": ["docs/reusable-core.md"]
+  "docs": ["docs/runtime/reusable-core.md"]
 }
 ```
 

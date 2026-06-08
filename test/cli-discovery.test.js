@@ -21,7 +21,7 @@ test('CLI prints command help from recipe metadata', async () => {
   const { stdout } = await execFileAsync('node', [cli, 'help', 'git_push_current_branch', '--long'])
 
   assert.match(stdout, /commandbook git_push_current_branch --yes/)
-  assert.match(stdout, /docs\/reusable-core\.md/)
+  assert.match(stdout, /docs\/runtime\/reusable-core\.md/)
   assert.match(stdout, /try_git_push_current_branch/)
 })
 

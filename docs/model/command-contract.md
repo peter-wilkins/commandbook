@@ -130,5 +130,5 @@ message_sent
 The queries and mutations used by a command are described by operation contracts:
 
 ```text
-docs/operation-contract.md
+docs/model/operation-contract.md
 ```

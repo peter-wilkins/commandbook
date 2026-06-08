@@ -58,57 +58,57 @@ dry_run: true
 ```
 
 The fuller language for this is captured in
-[`docs/command-contract.md`](command-contract.md).
+[`command-contract.md`](../model/command-contract.md).
 
 Queries and mutations are captured in
-[`docs/operation-contract.md`](operation-contract.md).
+[`operation-contract.md`](../model/operation-contract.md).
 
-Drivers are captured in [`docs/driver-contract.md`](driver-contract.md).
+Drivers are captured in [`driver-contract.md`](../model/driver-contract.md).
 
 Configuration changes are captured in
-[`docs/configuration-change-model.md`](configuration-change-model.md).
+[`configuration-change-model.md`](../model/configuration-change-model.md).
 
 Local-first implementation direction is captured in
-[`docs/local-first-implementation-strategy.md`](local-first-implementation-strategy.md).
+[`local-first-implementation-strategy.md`](../runtime/local-first-implementation-strategy.md).
 
 The reusable core boundary is captured in
-[`docs/reusable-core.md`](reusable-core.md).
+[`reusable-core.md`](../runtime/reusable-core.md).
 
 CLI discovery and help are captured in
-[`docs/cli-discovery-and-help.md`](cli-discovery-and-help.md).
+[`cli-discovery-and-help.md`](../interfaces/cli-discovery-and-help.md).
 
 Resumable setup graphs are captured in
-[`docs/resumable-setup-graphs.md`](resumable-setup-graphs.md).
+[`resumable-setup-graphs.md`](../runtime/resumable-setup-graphs.md).
 
 The coffee grinder run model is captured in
-[`docs/coffee-grinder-run-model.md`](coffee-grinder-run-model.md).
+[`coffee-grinder-run-model.md`](../runtime/coffee-grinder-run-model.md).
 
 Scheduled runs and interruption are captured in
-[`docs/scheduled-runs-and-interrupts.md`](scheduled-runs-and-interrupts.md).
+[`scheduled-runs-and-interrupts.md`](../runtime/scheduled-runs-and-interrupts.md).
 
 Android wakeup/runtime notes are captured in
-[`docs/platform-android-wakeup-notes.md`](platform-android-wakeup-notes.md).
+[`android-wakeup-notes.md`](../platforms/android-wakeup-notes.md).
 
 Deno permission-model research is captured in
-[`docs/research-deno-permissions.md`](research-deno-permissions.md).
+[`deno-permissions.md`](../research/deno-permissions.md).
 
 Temporal workflow research is captured in
-[`docs/research-temporal-workflows.md`](research-temporal-workflows.md).
+[`temporal-workflows.md`](../research/temporal-workflows.md).
 
 The capability gap builder loop is captured in
-[`docs/capability-gap-builder-loop.md`](capability-gap-builder-loop.md).
+[`capability-gap-builder-loop.md`](../runtime/capability-gap-builder-loop.md).
 
 The prior-art sanity check is captured in
-[`docs/prior-art-sanity-check.md`](prior-art-sanity-check.md).
+[`prior-art-sanity-check.md`](../research/prior-art-sanity-check.md).
 
 The first end-to-end example is
-[`docs/examples/android-settings-guided-change.md`](examples/android-settings-guided-change.md).
+[`android-settings-guided-change.md`](../examples/android-settings-guided-change.md).
 
 The water-trip logger example is captured in
-[`docs/examples/water-trip-location-logger.md`](examples/water-trip-location-logger.md).
+[`water-trip-location-logger.md`](../examples/water-trip-location-logger.md).
 
 Reusable operation patterns are captured in
-[`docs/operation-patterns.md`](operation-patterns.md).
+[`operation-patterns.md`](../runtime/operation-patterns.md).
 
 ### Trust Levels
 

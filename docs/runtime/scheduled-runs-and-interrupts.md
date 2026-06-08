@@ -11,6 +11,20 @@ Linux cron, and browser PWAs can all implement scheduling differently. The
 recipe should describe what should run and under what policy, not how a specific
 operating system wakes up.
 
+Every command should inherit a small set of global arguments. Keep this list
+short.
+
+```yaml
+global_args:
+  debug:
+    default: false
+    description: Record verbose coffee-grinder evidence for this run.
+```
+
+`debug=false` is important for phone efficiency. Normal runs should keep bounded
+state and low-volume receipts. `debug=true` can retain extra evidence while
+investigating a failure, but must not become the default.
+
 ## Useful Operations
 
 ### `get_location`
@@ -275,6 +289,22 @@ Long-running loops should check the run store before each tick. If stop is
 requested, the run should checkpoint and move to `cancelled` or
 `stopped_cleanly`.
 
+`stop` applies to the targeted branch of the journey, not necessarily the whole
+coffee-grinder run.
+
+Example:
+
+```text
+stop recording
+  -> stop the location/sensor recording branch
+  -> keep the run open
+  -> wait for Wi-Fi or human review
+  -> upload/export results later
+  -> finish after final verification
+```
+
+Use `cancel` for ending the whole run without completing the remaining graph.
+
 Ctrl-C should do the same best-effort checkpoint locally:
 
 ```text
@@ -314,6 +344,7 @@ Build now:
 - `http_post` with a fake or localhost driver
 - `schedule_each`
 - `commandbook stop`
+- branch-level stop semantics
 - simulated process death and resume
 
 Do not build yet:

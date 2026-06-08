@@ -29,5 +29,5 @@ local/source-captures/waterproof-case-chatgpt.txt
 Committed starting point:
 
 ```text
-docs/product-seed.md
+docs/product/product-seed.md
 ```

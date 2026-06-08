@@ -22,10 +22,10 @@ The system should:
 
 This example also uses general operation patterns from Linux-style automation:
 wait, poll, watch, verify, recover, timeout, and retry. See
-[`../operation-patterns.md`](../operation-patterns.md).
+[`operation-patterns.md`](../runtime/operation-patterns.md).
 
 This is an Android-shaped instance of the abstract configuration change model.
-See [`../configuration-change-model.md`](../configuration-change-model.md).
+See [`configuration-change-model.md`](../model/configuration-change-model.md).
 
 ## Granularity
 

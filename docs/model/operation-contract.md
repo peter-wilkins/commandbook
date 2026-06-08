@@ -36,7 +36,7 @@ The kind of driver needed to implement this operation in a given environment.
 Driver contracts are described in:
 
 ```text
-docs/driver-contract.md
+docs/model/driver-contract.md
 ```
 
 ### Failure Cases

@@ -4,7 +4,7 @@
   "usage": "commandbook configure_git_identity --name \"Your Name\" --email you@example.com --yes",
   "docs": [
     "docs/examples/android-settings-guided-change.md",
-    "docs/operation-patterns.md"
+    "docs/runtime/operation-patterns.md"
   ],
   "defaultScope": "current_repo",
   "goal": {

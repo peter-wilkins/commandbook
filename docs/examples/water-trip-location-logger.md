@@ -73,7 +73,7 @@ analysis and evidence later.
 Do not make the live path carry high-rate sensor data.
 
 The reusable pieces are captured in
-[`../scheduled-runs-and-interrupts.md`](../scheduled-runs-and-interrupts.md).
+[`scheduled-runs-and-interrupts.md`](../runtime/scheduled-runs-and-interrupts.md).
 The important split is:
 
 ```text
@@ -110,7 +110,7 @@ These links are implementation input for a later phone driver, not part of the
 Commandbook recipe contract.
 
 Android wakeup notes are kept separately in
-[`../platform-android-wakeup-notes.md`](../platform-android-wakeup-notes.md).
+[`android-wakeup-notes.md`](../platforms/android-wakeup-notes.md).
 
 ## Local Files
 
