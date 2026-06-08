@@ -37,6 +37,30 @@ Keep these separate:
 - `SafetyPolicy`: friction and proof rules.
 - `HumanApproval`: approval for one concrete side effect.
 
+Capability keys are namespaced, but they name the power only. Do not encode
+grant or status in the key.
+
+Good:
+
+```text
+message/send
+location/read_current
+network/post
+android/open_settings
+```
+
+Bad:
+
+```text
+message/granted
+location/revoked
+network/post_approved
+android/open_settings_pending
+```
+
+Grant and status information belongs in `CapabilityGrant` and
+`CapabilityLedgerEvent` records that reference the capability key.
+
 ## Already Simple
 
 - Operation requirements no longer carry grant state.
@@ -142,6 +166,11 @@ The broker can hash the current run's canonical fact values and compare digests.
 If a future grant needs patterns such as "any recipient on this domain", that is
 a different grant-scope policy record, not a reason to overload this first
 record.
+
+Storage paths may use capability key parts for convenience, but storage layout is
+not the semantic key. For example, `capability-grants/message/send/...` can store
+active `message/send` grants; the capability remains `message/send`, not
+`message/send/granted`.
 
 ## Proposed Zod Schemas For Review
 

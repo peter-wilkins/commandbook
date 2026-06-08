@@ -196,6 +196,20 @@ outcomes. Operations declare required capabilities. The runtime decides whether
 those requirements can be fulfilled on a particular device with the human's
 current grants.
 
+### Capability Key
+
+The stable namespaced name of a capability.
+
+Use `namespace/action`, for example `message/send`, `location/read_current`,
+`network/post`, or `android/open_settings`.
+
+The namespace before the slash names the domain or integration. The name after
+the slash names the power. It must not name grant state, approval state,
+revocation state, status, or storage layout.
+
+Capability grants, denials, revocations, expiries, and use history belong in
+separate grant and ledger records that reference the capability key.
+
 ### Capability Requirement
 
 The capabilities an operation declares it needs before it may run.
