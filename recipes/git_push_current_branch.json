@@ -1,6 +1,11 @@
 {
   "name": "git_push_current_branch",
   "description": "Push the current branch, repairing missing git identity inside the current run if that blocks the push.",
+  "usage": "commandbook git_push_current_branch --yes",
+  "docs": [
+    "docs/reusable-core.md",
+    "docs/operation-patterns.md"
+  ],
   "defaultScope": "current_repo",
   "goal": {
     "effects": ["git_branch_pushed"]
@@ -11,4 +16,3 @@
     { "op": "ask_are_you_happy" }
   ]
 }
-

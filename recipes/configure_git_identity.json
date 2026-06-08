@@ -1,6 +1,11 @@
 {
   "name": "configure_git_identity",
   "description": "Configure git user.name and user.email for the current repository.",
+  "usage": "commandbook configure_git_identity --name \"Your Name\" --email you@example.com --yes",
+  "docs": [
+    "docs/examples/android-settings-guided-change.md",
+    "docs/operation-patterns.md"
+  ],
   "defaultScope": "current_repo",
   "goal": {
     "facts": ["verifiedGitIdentity"],
@@ -16,4 +21,3 @@
     { "op": "ask_are_you_happy" }
   ]
 }
-

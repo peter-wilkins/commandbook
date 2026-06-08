@@ -74,6 +74,9 @@ Local-first implementation direction is captured in
 The reusable core boundary is captured in
 [`docs/reusable-core.md`](reusable-core.md).
 
+CLI discovery and help are captured in
+[`docs/cli-discovery-and-help.md`](cli-discovery-and-help.md).
+
 Resumable setup graphs are captured in
 [`docs/resumable-setup-graphs.md`](resumable-setup-graphs.md).
 

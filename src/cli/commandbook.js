@@ -2,7 +2,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { FileRunStore } from '../adapters/file-run-store.js'
-import { listRecipes } from '../core/recipes.js'
+import { listRecipes, loadRecipe } from '../core/recipes.js'
 import { defaultRecipesDir, runCommand } from '../index.js'
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
@@ -11,22 +11,33 @@ async function main() {
   const [command, ...rest] = process.argv.slice(2)
   const args = parseArgs(rest)
 
-  if (!command || command === '--help' || command === 'help') {
+  if (!command || command === '--help') {
     printHelp()
     return
   }
 
+  if (command === 'help') {
+    const target = args._?.[0]
+    if (target) {
+      await printCommandHelp(target, args)
+    } else {
+      printHelp()
+    }
+    return
+  }
+
   if (command === 'list') {
-    const recipes = await listRecipes(args.recipesDir ?? defaultRecipesDir)
-    for (const recipe of recipes) console.log(recipe)
+    await listCommand(args)
     return
   }
 
   if (command === 'runs') {
-    const runCwd = args.repo ?? process.cwd()
-    const store = new FileRunStore(args.storeDir ?? path.join(runCwd, '.commandbook'))
-    const keys = await store.list('runs')
-    for (const key of keys) console.log(key)
+    await listRuns(args)
+    return
+  }
+
+  if (command === 'status') {
+    await printStatus(args)
     return
   }
 
@@ -64,12 +75,114 @@ function parseArgs(items) {
   return args
 }
 
+async function listCommand(args) {
+  const target = args._?.[0] ?? 'commands'
+
+  if (target === 'commands' || target === 'all') {
+    const recipesDir = args.recipesDir ?? defaultRecipesDir
+    const recipes = await listRecipes(recipesDir)
+    for (const name of recipes) {
+      const recipe = await loadRecipe(recipesDir, name)
+      console.log(`${name} - ${recipe.description ?? 'No description'}`)
+    }
+    return
+  }
+
+  if (target === 'runs') {
+    await listRuns(args)
+    return
+  }
+
+  if (target === 'running') {
+    await listRuns(args, { onlyRunning: true })
+    return
+  }
+
+  throw new Error(`Unknown list target: ${target}`)
+}
+
+async function listRuns(args, { onlyRunning = false } = {}) {
+  const store = createStore(args)
+  const runs = await loadRuns(store)
+  const visible = onlyRunning ? runs.filter(({ ctx }) => isRunningStatus(ctx.status)) : runs
+  for (const { key, ctx } of visible) {
+    console.log(`${ctx.status.padEnd(16)} ${key}`)
+  }
+}
+
+async function printStatus(args) {
+  const store = createStore(args)
+  const runs = await loadRuns(store)
+  const target = args._?.[0]
+  const selected = target
+    ? runs.find(({ key }) => key === target || key.endsWith(`/${target}`))
+    : runs.at(-1)
+
+  if (!selected) {
+    console.log(target ? `No run found for ${target}` : 'No runs found.')
+    return
+  }
+
+  printRunSummary(selected.ctx)
+}
+
+async function printCommandHelp(command, args) {
+  const recipesDir = args.recipesDir ?? defaultRecipesDir
+  const recipe = await loadRecipe(recipesDir, command)
+
+  console.log(`${recipe.name ?? command}`)
+  console.log(`${recipe.description ?? 'No description.'}`)
+
+  if (recipe.usage) {
+    console.log('\nusage:')
+    console.log(`  ${recipe.usage}`)
+  }
+
+  if (recipe.docs?.length > 0) {
+    console.log('\ndocs:')
+    for (const doc of recipe.docs) console.log(`  ${doc}`)
+  }
+
+  if (!args.long) return
+
+  if (recipe.goal) {
+    console.log('\ngoal:')
+    console.log(JSON.stringify(recipe.goal, null, 2))
+  }
+
+  if (recipe.queue?.length > 0) {
+    console.log('\nqueue:')
+    for (const item of recipe.queue) console.log(`  - ${item.op}`)
+  }
+}
+
+function createStore(args) {
+  const runCwd = args.repo ?? process.cwd()
+  return new FileRunStore(args.storeDir ?? path.join(runCwd, '.commandbook'))
+}
+
+async function loadRuns(store) {
+  const keys = await store.list('runs')
+  const runs = []
+  for (const key of keys) {
+    const ctx = await store.get(key)
+    if (ctx) runs.push({ key, ctx })
+  }
+  return runs.sort((left, right) => left.ctx.runId.localeCompare(right.ctx.runId))
+}
+
+function isRunningStatus(status) {
+  return !['complete', 'failed', 'cancelled', 'stopped_cleanly'].includes(status)
+}
+
 function printHelp() {
   console.log(`Commandbook
 
 Usage:
-  commandbook list
+  commandbook list [commands|runs|running]
   commandbook runs [--store-dir .commandbook]
+  commandbook status [run-key]
+  commandbook help [command] [--long]
   commandbook configure_git_identity --name "Your Name" --email you@example.com --yes
   commandbook git_push_current_branch --yes
 
@@ -78,6 +191,7 @@ Options:
   --store-dir PATH   Store run state somewhere other than .commandbook
   --recipes-dir PATH Load recipes from another folder
   --yes             Approve safe local mutations and final "happy" check
+  --long            Show detailed command help
 `)
 }
 
