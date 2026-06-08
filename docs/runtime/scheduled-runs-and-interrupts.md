@@ -186,6 +186,9 @@ overrun_policy:
 Do not invent cron syntax yet. Start with simple periodic schedules and named
 policies.
 
+World-driven wakeups such as `wifi.available` belong to the runtime event model,
+not to scheduler syntax. See [`runtime-events.md`](runtime-events.md).
+
 ## Scheduler State
 
 Minimum useful state:
@@ -254,7 +257,7 @@ The scheduler is a driver, not a special all-powerful coffee grinder.
 Its job is to:
 
 - calculate the next due time
-- wake or be called by the platform runtime
+- wake, emit `timer.due`, or be called by the platform runtime
 - start bounded child command runs
 - record summary state
 - apply stop/overrun/error policy

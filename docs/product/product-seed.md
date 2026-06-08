@@ -86,6 +86,9 @@ The coffee grinder run model is captured in
 Scheduled runs and interruption are captured in
 [`scheduled-runs-and-interrupts.md`](../runtime/scheduled-runs-and-interrupts.md).
 
+Runtime events are captured in
+[`runtime-events.md`](../runtime/runtime-events.md).
+
 Android wakeup/runtime notes are captured in
 [`android-wakeup-notes.md`](../platforms/android-wakeup-notes.md).
 

@@ -33,6 +33,10 @@ The coffee grinder owns:
 It also owns the boring but essential operation patterns: wait, poll, watch,
 verify, recover, retry, timeout, and backoff.
 
+The runtime event model is captured in
+[`runtime-events.md`](runtime-events.md). Events let a coffee grinder sleep until
+the world changes, rather than polling constantly.
+
 ## Flow
 
 ```text
@@ -133,6 +137,7 @@ Suggested first-pass statuses:
 - `running_queries`
 - `paused_for_setup`
 - `paused_for_human`
+- `paused_for_event`
 - `paused_for_approval`
 - `running_mutations`
 - `recovering`
