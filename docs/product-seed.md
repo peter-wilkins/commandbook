@@ -80,6 +80,9 @@ Resumable setup graphs are captured in
 The coffee grinder run model is captured in
 [`docs/coffee-grinder-run-model.md`](coffee-grinder-run-model.md).
 
+Scheduled runs and interruption are captured in
+[`docs/scheduled-runs-and-interrupts.md`](scheduled-runs-and-interrupts.md).
+
 Deno permission-model research is captured in
 [`docs/research-deno-permissions.md`](research-deno-permissions.md).
 
@@ -94,6 +97,9 @@ The prior-art sanity check is captured in
 
 The first end-to-end example is
 [`docs/examples/android-settings-guided-change.md`](examples/android-settings-guided-change.md).
+
+The water-trip logger example is captured in
+[`docs/examples/water-trip-location-logger.md`](examples/water-trip-location-logger.md).
 
 Reusable operation patterns are captured in
 [`docs/operation-patterns.md`](operation-patterns.md).
