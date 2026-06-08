@@ -10,8 +10,9 @@ The goal is to keep separate things separate:
 - safety policy
 - proof
 
-Only `FactKey`, `EffectKey`, `GraphEdge`, and `GapSignature` exist in code today.
-The other records are the next things to grill.
+`FactKey`, `EffectKey`, `OperationId`, `GraphEdge`, `GapSignature`, and
+`ImplementationBinding` exist in code today. The other records are the next
+things to grill.
 
 ## Naming
 
@@ -46,11 +47,21 @@ classDiagram
     +string value
   }
 
+  class OperationId {
+    +string value
+  }
+
   class GraphEdge {
     +string edgeId
     +FactKey[] requiresFacts
     +FactKey[] providesFacts
     +EffectKey[] providesEffects
+  }
+
+  class ImplementationBinding {
+    +string bindingId
+    +string edgeId
+    +OperationId operationId
   }
 
   class GapSignature {
@@ -62,6 +73,8 @@ classDiagram
   GraphEdge --> FactKey : requires
   GraphEdge --> FactKey : provides
   GraphEdge --> EffectKey : provides
+  ImplementationBinding --> GraphEdge : binds edge
+  ImplementationBinding --> OperationId : executes operation
   GapSignature --> FactKey : have/need
   GapSignature --> EffectKey : need
 ```
@@ -87,28 +100,53 @@ flowchart LR
 The lookup is deliberately about graph reachability only. It does not decide
 whether the edge is safe, installed, approved, cheap, or tested.
 
-## Separated Records
+## Implementation Bindings
 
-The next records should link to a graph edge instead of being folded into it.
+One graph edge can have several implementation bindings. That gives graceful
+degradation without changing the graph.
+
+```mermaid
+flowchart LR
+  Edge["GraphEdge\nyoutube_transcript\nrequires: youtube.video/id\nprovides: youtube.video/transcript_text"]
+
+  Api["ImplementationBinding\nyoutube_transcript_api\noperation: youtube.video/fetch_transcript_via_api"]
+  Scrape["ImplementationBinding\nyoutube_transcript_scrape\noperation: youtube.video/fetch_transcript_via_page_scrape"]
+  Cache["ImplementationBinding\nyoutube_transcript_cache\noperation: youtube.video/read_transcript_cache"]
+
+  Edge --> Api
+  Edge --> Scrape
+  Edge --> Cache
+```
+
+V0 lookup returns the available bindings for an edge. Later planning can prefer
+local cache, then official API, then scrape, then human/manual fallback.
+
+## Separated Future Records
+
+The next records should link to graph edges or operation ids instead of being
+folded into them.
 
 ```mermaid
 flowchart TB
   GraphEdge["GraphEdge\nfacts/effects in and out"]
+  Implementation["ImplementationBinding\nedge -> operation"]
 
-  Implementation["ImplementationBinding\nhow to execute this edge"]
   Capability["CapabilityRequirement\nwhat permission/effect boundary is needed"]
   Safety["SafetyPolicy\napproval, idempotency, recovery"]
   Proof["ProofClaim\ntests, replays, properties"]
+  Driver["DriverBinding\noperation + platform -> driver"]
 
   GraphEdge --> Implementation
-  GraphEdge --> Capability
-  GraphEdge --> Safety
-  GraphEdge --> Proof
+  Implementation --> Driver
+  Implementation --> Capability
+  Implementation --> Safety
+  Implementation --> Proof
 ```
 
 This avoids the earlier `kind` smell. A graph edge is not a query, mutation,
 driver, setup graph, verifier, and test all at once. It is just a reachability
-claim.
+claim. An implementation binding is also narrow: it only links the edge to an
+operation.
 
 Other records can describe how that claim is implemented, what it is allowed to
 do, how it recovers, and what evidence supports it.

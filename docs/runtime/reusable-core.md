@@ -337,6 +337,11 @@ have fact X, want to know what is reachable -> candidate commands and queries
 This is useful for both humans and agents. It powers command autocomplete, gap
 agent search, and "why can't this run?" explanations.
 
+Implementation bindings should stay separate from graph edges. A graph edge says
+what facts or effects are reachable. An implementation binding says which
+operation can execute that edge. Several bindings can point at the same edge,
+which gives graceful degradation without changing the graph.
+
 The same registry shape should also support command-composed proof. A command
 path can collect proof handles from the graph edges, drivers, safety policies,
 and recovery rules it uses. See

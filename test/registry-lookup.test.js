@@ -3,7 +3,10 @@ import test from 'node:test'
 import {
   FactKeySchema,
   GraphEdgeSchema,
-  findGraphEdges
+  ImplementationBindingSchema,
+  OperationIdSchema,
+  findGraphEdges,
+  findImplementationBindings
 } from '../src/core/registry.js'
 
 test('registry finds graph edges by namespaced fact signature', () => {
@@ -105,4 +108,38 @@ test('generated namespaced fact keys stay searchable by exact namespace', () => 
 
     assert.deepEqual(matches.map((match) => match.edge.edgeId), [`source${index}_thing_label`])
   }
+})
+
+test('implementation bindings link one graph edge to multiple operations', () => {
+  const bindings = [
+    ImplementationBindingSchema.parse({
+      bindingId: 'youtube_transcript_api',
+      edgeId: 'youtube_transcript',
+      operationId: 'youtube.video/fetch_transcript_via_api'
+    }),
+    ImplementationBindingSchema.parse({
+      bindingId: 'youtube_transcript_scrape',
+      edgeId: 'youtube_transcript',
+      operationId: 'youtube.video/fetch_transcript_via_page_scrape'
+    }),
+    ImplementationBindingSchema.parse({
+      bindingId: 'local_video_transcript',
+      edgeId: 'local_video_transcript',
+      operationId: 'local.video/read_transcript_cache'
+    })
+  ]
+
+  assert.equal(
+    OperationIdSchema.parse('youtube.video/fetch_transcript_via_api'),
+    'youtube.video/fetch_transcript_via_api'
+  )
+
+  const matches = findImplementationBindings(bindings, {
+    edgeId: 'youtube_transcript'
+  })
+
+  assert.deepEqual(matches.map((binding) => binding.bindingId), [
+    'youtube_transcript_api',
+    'youtube_transcript_scrape'
+  ])
 })
