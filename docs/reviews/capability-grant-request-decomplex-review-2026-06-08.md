@@ -222,6 +222,11 @@ Why this is intentionally limited:
 
 ## Next Slice
 
-Design `CapabilityLedgerEvent` separately. Keep it out of grant/request records
-so active permission projection and historical events remain independently
-changeable.
+Do not implement the security stack yet. Keep `CapabilityLedgerEvent` as a
+future receipt/audit record, separate from grant/request records, so active
+permission projection and historical events remain independently changeable.
+
+For now, Commandbook can run trusted local recipes in YOLO mode. The next
+security slice should wait until there is a real enforcement boundary to test:
+broker, sandbox, permission store, or a concrete side effect that must be
+blocked without approval.

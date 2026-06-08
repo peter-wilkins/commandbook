@@ -283,6 +283,11 @@ and useful feedback loop.
 
 The coffee grinder should inspect capability needs before execution.
 
+Current implementation stance: placeholder this model, but run trusted local
+jobs in YOLO mode for now. Do not pretend this is security. It is domain
+language and future scaffolding until there is a broker, sandbox, permission
+store, and tests proving enforcement.
+
 Deno is useful inspiration here: outside-world access should be explicit and
 narrow. Commandbook should distinguish:
 
@@ -326,6 +331,30 @@ commandbook permissions list
 commandbook permissions review
 commandbook permissions revoke <grant-id>
 ```
+
+### YOLO Mode
+
+YOLO mode means:
+
+- operations run with the permissions of the local user/process
+- capability requirements remain useful documentation
+- the runner does not block on missing grants
+- no sandbox boundary is claimed
+- human final verification is still expected for meaningful runs
+
+YOLO mode is acceptable while Commandbook is local-first, single-user, and
+pre-product. Switch out of YOLO when any of these become true:
+
+- untrusted recipes or drivers are executed
+- remote users can trigger work
+- money, public publishing, account settings, or destructive mutations are in
+  scope
+- Peter needs review/revoke behaviour for real work
+- tests can prove the broker blocks an unapproved side effect
+
+Capability ledger events are for that later switch. They record the history
+from which active grants can be projected. They are not needed to run the first
+useful local commands.
 
 ## Replanning
 

@@ -246,7 +246,20 @@ and provide only scoped handles to operations that are approved to run.
 The append-only local history of capability grants, denials, revocations, uses,
 and expiry.
 
+The ledger is the receipt trail. It answers questions such as:
+
+- who or what granted this capability?
+- when was it used?
+- was it later denied, revoked, or expired?
+- why does the active grant projection look like this now?
+
 The ledger lets the user review and revoke permissions per device or runtime.
+It is not the active permission itself. Active grants are a projection derived
+from ledger history plus local policy.
+
+For the MVP, capability ledger design is a placeholder. The local runner may run
+in trusted YOLO mode until there is a real broker, sandbox, or permission
+boundary to enforce and test.
 
 ### Driver
 
