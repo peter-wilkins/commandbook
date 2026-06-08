@@ -7,7 +7,7 @@ Start here:
 
 Main sections:
 
-- [`model/`](model/) - command, operation, driver, configuration, and Pathom language.
+- [`model/`](model/) - command, operation, driver, configuration, Pathom language, and registry diagrams.
 - [`runtime/`](runtime/) - coffee grinder, scheduler, events, test time, command-composed tests, local-first runtime, setup graphs, and operation patterns.
 - [`interfaces/`](interfaces/) - CLI and user-facing inspection surfaces.
 - [`platforms/`](platforms/) - platform-specific runtime notes.

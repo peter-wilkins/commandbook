@@ -227,6 +227,9 @@ provides:
 The planner can then compose the route without either provider knowing about the
 whole product workflow.
 
+The current schema diagrams for this model live in
+[`registry-schema-diagrams.md`](registry-schema-diagrams.md).
+
 This is also why capability gaps can be precise. A gap is not "build video
 support". It is:
 

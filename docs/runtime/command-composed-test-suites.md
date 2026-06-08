@@ -82,6 +82,9 @@ This is the testing equivalent of a reachability index:
 What proof is reachable from the pieces used by this command?
 ```
 
+See the visual version in
+[`../model/registry-schema-diagrams.md`](../model/registry-schema-diagrams.md).
+
 ## Output To Human
 
 The agent should report proof in plain language:
