@@ -171,7 +171,7 @@ goal:
     - setting_route
     - current_setting_state
     - desired_setting_state
-allowed_capabilities:
+expected_capabilities:
   - inspect_android_device
   - open_android_settings
   - cache_route

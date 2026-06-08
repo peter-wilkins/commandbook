@@ -12,4 +12,5 @@ Main sections:
 - [`interfaces/`](interfaces/) - CLI and user-facing inspection surfaces.
 - [`platforms/`](platforms/) - platform-specific runtime notes.
 - [`research/`](research/) - prior art and external system notes.
+- [`reviews/`](reviews/) - architecture and decomplexing reviews.
 - [`examples/`](examples/) - end-to-end command examples.

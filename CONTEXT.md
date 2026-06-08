@@ -186,10 +186,44 @@ dashboard setting.
 
 ### Capability
 
-A permissioned class of action that a command may need.
+A permissioned class of action that an operation may need.
 
 Examples include reading location, sending a message, creating content, spending
 money, or starting an emergency action.
+
+Commands do not own capabilities. A command describes intent and desired
+outcomes. Operations declare required capabilities. The runtime decides whether
+those requirements can be fulfilled on a particular device with the human's
+current grants.
+
+### Capability Requirement
+
+The capabilities an operation declares it needs before it may run.
+
+Capability requirements are requirements, not approvals. They become executable
+only when matched by active capability grants in the local runtime.
+
+### Capability Grant
+
+A recorded permission from the human or runtime policy allowing a capability to
+be used within a stated scope.
+
+Grants may be narrow, temporary, reusable, denied, revoked, or expired.
+
+### Capability Broker
+
+The runtime component that compares operation capability requirements with
+active capability grants.
+
+The broker should refuse missing capabilities, request new grants when allowed,
+and provide only scoped handles to operations that are approved to run.
+
+### Capability Ledger
+
+The append-only local history of capability grants, denials, revocations, uses,
+and expiry.
+
+The ledger lets the user review and revoke permissions per device or runtime.
 
 ### Driver
 

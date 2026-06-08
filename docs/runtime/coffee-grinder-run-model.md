@@ -68,9 +68,13 @@ The user-facing command contract.
 
 Named CLI-style inputs that become initial facts.
 
-### Allowed Capabilities
+### Active Capability Grants
 
-The safety envelope for this run.
+Capability grants available in the current runtime before the run begins.
+
+Commands do not define the hard capability list. Operations declare capability
+requirements as the plan unfolds. The capability broker checks those
+requirements against active grants and runtime policy.
 
 ### Known State
 
@@ -283,8 +287,10 @@ Deno is useful inspiration here: outside-world access should be explicit and
 narrow. Commandbook should distinguish:
 
 - user approval
-- command capability
 - operation requirement
+- capability grant
+- capability ledger
+- capability broker
 - driver platform permission
 - runtime/environment permission
 
@@ -293,8 +299,32 @@ Example:
 ```text
 send_message mutation
   requires capability: send_message
+  grant: send_message to Cat through SMS for this run
   driver permission: android.permission.SEND_SMS
   user approval: recipient + message_text dry run
+```
+
+Commands describe intent, goal, trust level, and hard constraints. They may
+document likely capabilities, but they do not grant them.
+
+If a selected operation needs a capability with no matching active grant, the
+coffee grinder should insert a permission-request path:
+
+```text
+operation requires send_email
+  -> broker finds no active grant
+  -> enqueue request_capability_grant
+  -> human approves/denies or runtime policy auto-grants within scope
+  -> append result to capability ledger
+  -> resume original run if granted
+```
+
+Permission history should be device/runtime local and reviewable:
+
+```text
+commandbook permissions list
+commandbook permissions review
+commandbook permissions revoke <grant-id>
 ```
 
 ## Replanning

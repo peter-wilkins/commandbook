@@ -30,9 +30,13 @@ Arguments can be required or optional, and can have defaults.
 
 The machine-readable facts or effects the command wants to end up with.
 
-### Allowed Capabilities
+### Expected Capabilities
 
-The capabilities the command is allowed to use while planning and running.
+Optional documentation describing likely capability hints for a typical plan.
+
+Expected capabilities are not the enforcement boundary. Operations declare
+capability requirements, and the local runtime grants or refuses those
+requirements for the current device and human.
 
 ### Trust Level
 
@@ -85,7 +89,7 @@ goal:
   facts:
     - eta
     - message_text
-allowed_capabilities:
+expected_capabilities:
   - read_location
   - read_contacts
   - estimate_travel_time
@@ -132,3 +136,8 @@ The queries and mutations used by a command are described by operation contracts
 ```text
 docs/model/operation-contract.md
 ```
+
+Those operations declare the actual capability requirements. If a run reaches an
+operation whose required capabilities are not granted on the current runtime, the
+coffee grinder should pause or insert a permission-request setup path rather than
+assuming the command contract already allowed it.

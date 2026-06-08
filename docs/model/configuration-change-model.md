@@ -170,7 +170,7 @@ goal:
     - desired_state
   effects:
     - configuration_change_guided
-allowed_capabilities:
+expected_capabilities:
   - inspect_configuration_state
   - find_configuration_route
   - open_configuration_surface

@@ -11,9 +11,9 @@ local/source-captures/waterproof-case-chatgpt.txt
 ## One Sentence
 
 Commandbook is a permissioned, inspectable shell for human tasks: the user states
-intent, the planner builds a safe command pipeline, and every command is
-constrained by declared capabilities, trust level, inputs, outputs, tests, and
-dry-run behaviour.
+intent, the planner builds a safe command pipeline, operations declare the power
+they need, and the local runtime grants or refuses that power with visible
+history and dry-run behaviour.
 
 ## Why This Matters
 
@@ -31,7 +31,8 @@ Commandbook creates a boundary:
 User -> Commandbook -> Capabilities -> Drivers -> Device
 ```
 
-The command is not just an action. It is a security policy.
+The command is not just an action. It is a durable recipe for intent, goal, and
+constraints. Runtime capability grants are the security boundary.
 
 ## Core Concepts
 
@@ -49,12 +50,19 @@ inputs:
   - message
 outputs:
   - message_id
-capabilities:
+expected_capabilities:
   - send_message
 trust_level: level_1
 side_effects:
   - sends_message
 dry_run: true
+```
+
+`expected_capabilities` on a command are documentary. The actual enforcement
+happens at operation/runtime level:
+
+```text
+Command intent -> Operation requirements -> Runtime grants -> Driver handles
 ```
 
 The fuller language for this is captured in
@@ -100,6 +108,9 @@ Android wakeup/runtime notes are captured in
 
 Deno permission-model research is captured in
 [`deno-permissions.md`](../research/deno-permissions.md).
+
+JavaScript sandbox options are captured in
+[`javascript-sandbox-options.md`](../research/javascript-sandbox-options.md).
 
 Temporal workflow research is captured in
 [`temporal-workflows.md`](../research/temporal-workflows.md).

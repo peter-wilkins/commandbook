@@ -7,6 +7,9 @@ Sources:
 - https://docs.deno.com/runtime/fundamentals/security/
 - https://docs.deno.com/api/deno/~/Deno.permissions
 
+JavaScript sandbox alternatives are captured in
+[`javascript-sandbox-options.md`](javascript-sandbox-options.md).
+
 ## Why It Matters
 
 Deno has a useful permission model for Commandbook to study.
@@ -42,10 +45,10 @@ account:cloudflare-email
 This maps naturally to:
 
 ```text
-Command -> allowed capabilities
 Operation -> required capabilities
 Driver -> platform permissions
-Coffee Grinder -> prompt/checkpoint/resume when missing
+Runtime -> active capability grants
+Coffee Grinder -> broker check + prompt/checkpoint/resume when missing
 ```
 
 ## Useful Lessons
@@ -62,8 +65,8 @@ Coffee Grinder -> prompt/checkpoint/resume when missing
 
 1. Should Commandbook capabilities look like Deno flags, e.g.
    `--allow-net=api.example.com`?
-2. Should capability prompts happen before the run starts or lazily when the
-   graph reaches the missing capability?
-3. How do we represent platform permissions separately from user approval?
+2. Should capability prompts happen lazily when the graph reaches the missing
+   capability, or should the planner preflight likely requirements?
+3. How do we represent platform permissions separately from user grants?
 4. Which parts of the Deno permission model are good inspiration, and which
    parts are too runtime-specific for Commandbook?
