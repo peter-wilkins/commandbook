@@ -89,6 +89,9 @@ Scheduled runs and interruption are captured in
 Runtime events are captured in
 [`runtime-events.md`](../runtime/runtime-events.md).
 
+Temporal-style test time and event scripts are captured in
+[`test-time-and-event-scripts.md`](../runtime/test-time-and-event-scripts.md).
+
 Android wakeup/runtime notes are captured in
 [`android-wakeup-notes.md`](../platforms/android-wakeup-notes.md).
 

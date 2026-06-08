@@ -7,6 +7,8 @@ Sources:
 - https://docs.temporal.io/
 - https://docs.temporal.io/workflows
 - https://docs.temporal.io/activities
+- https://docs.temporal.io/develop/typescript/testing-suite
+- https://docs.temporal.io/develop/go/testing-suite
 
 ## Why It Matters
 
@@ -27,6 +29,8 @@ The important product idea is not "use Temporal". The useful ideas are:
 - timers and waits that survive process failure
 - heartbeats/checkpoints for long-running activities
 - signals/messages into running workflows
+- test environments that skip idle timer periods
+- event-history replay to catch determinism regressions
 
 ## Commandbook Mapping
 
@@ -41,6 +45,8 @@ The important product idea is not "use Temporal". The useful ideas are:
 | Activity heartbeat | Long-running mutation checkpoint |
 | Signal | Human requirement resolved or new facts supplied |
 | Timer | Wait/timeout operation pattern |
+| Test time skipping | Virtual clock test harness |
+| Workflow history replay | Coffee-grinder checkpoint replay |
 
 ## Important Lesson
 
@@ -81,3 +87,6 @@ safe retries
 ```
 
 Do not import Temporal vocabulary wholesale if Commandbook language is clearer.
+
+Temporal-style testing guidance for Commandbook is captured in
+[`../runtime/test-time-and-event-scripts.md`](../runtime/test-time-and-event-scripts.md).

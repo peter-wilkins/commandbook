@@ -359,3 +359,7 @@ Do not build yet:
 - multi-user viewer
 
 Those become justified after the scheduled local run model is boring and tested.
+
+The test harness for this should use virtual time so long schedules do not run
+in wall-clock time. See
+[`test-time-and-event-scripts.md`](test-time-and-event-scripts.md).

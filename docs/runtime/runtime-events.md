@@ -188,3 +188,6 @@ waiting_for_events:
 
 When a matching event is emitted, Commandbook resumes the same run and completes
 the pending upload branch.
+
+Long event-driven runs should be tested with virtual time and scripted events.
+See [`test-time-and-event-scripts.md`](test-time-and-event-scripts.md).
