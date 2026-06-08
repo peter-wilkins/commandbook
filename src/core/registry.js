@@ -18,11 +18,35 @@ export const FactKeySchema = NamespacedKeySchema
 export const EffectKeySchema = NamespacedKeySchema
 export const OperationIdSchema = NamespacedKeySchema
 export const CapabilityKeySchema = NamespacedKeySchema
+export const ScopeValueDigestSchema = z
+  .string()
+  .regex(
+    /^sha256:[a-f0-9]{64}$/,
+    'Scope value digests must look like sha256:<64 lowercase hex chars>'
+  )
 
 export const CapabilityRequirementSchema = z.object({
   capabilityKey: CapabilityKeySchema,
   scopeFactKeys: z.array(FactKeySchema).default([]),
   purpose: z.string().min(1).optional()
+})
+
+export const CapabilityScopeBindingSchema = z.object({
+  factKey: FactKeySchema,
+  valueDigest: ScopeValueDigestSchema
+})
+
+export const ScopedCapabilityRequestSchema = z.object({
+  capabilityKey: CapabilityKeySchema,
+  scopeBindings: z.array(CapabilityScopeBindingSchema).default([]),
+  purpose: z.string().min(1).optional()
+})
+
+export const CapabilityGrantSchema = z.object({
+  grantId: SnakeCaseIdSchema,
+  capabilityKey: CapabilityKeySchema,
+  scopeBindings: z.array(CapabilityScopeBindingSchema).default([]),
+  expiresAt: z.string().datetime().optional()
 })
 
 export const GraphEdgeSchema = z.object({

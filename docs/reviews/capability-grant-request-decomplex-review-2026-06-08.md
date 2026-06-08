@@ -172,9 +172,9 @@ not the semantic key. For example, `capability-grants/message/send/...` can stor
 active `message/send` grants; the capability remains `message/send`, not
 `message/send/granted`.
 
-## Proposed Zod Schemas For Review
+## Zod Schemas
 
-Do not implement these until Peter approves the shape.
+Implemented in `src/core/registry.js` after Peter approved the shape.
 
 ```js
 export const ScopeValueDigestSchema = z
@@ -222,6 +222,6 @@ Why this is intentionally limited:
 
 ## Next Slice
 
-Ask Peter to approve or adjust these schemas. If approved, implement only
-`ScopeValueDigestSchema`, `CapabilityScopeBindingSchema`,
-`ScopedCapabilityRequestSchema`, and `CapabilityGrantSchema` with parser tests.
+Design `CapabilityLedgerEvent` separately. Keep it out of grant/request records
+so active permission projection and historical events remain independently
+changeable.

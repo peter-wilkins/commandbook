@@ -1,14 +1,20 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  CapabilityGrantSchema,
   CapabilityRequirementSchema,
+  CapabilityScopeBindingSchema,
   FactKeySchema,
   GraphEdgeSchema,
   ImplementationBindingSchema,
   OperationIdSchema,
+  ScopeValueDigestSchema,
+  ScopedCapabilityRequestSchema,
   findGraphEdges,
   findImplementationBindings
 } from '../src/core/registry.js'
+
+const DIGEST = `sha256:${'a'.repeat(64)}`
 
 test('capability requirements keep power separate from runtime grants', () => {
   const requirement = CapabilityRequirementSchema.parse({
@@ -35,6 +41,123 @@ test('capability requirements keep power separate from runtime grants', () => {
     CapabilityRequirementSchema.parse({
       capabilityKey: 'send_message',
       scopeFactKeys: ['contact/recipient']
+    })
+  )
+})
+
+test('scope value digests are lowercase sha256 hashes', () => {
+  assert.equal(ScopeValueDigestSchema.parse(DIGEST), DIGEST)
+
+  assert.throws(() => ScopeValueDigestSchema.parse('sha256:abc'))
+  assert.throws(() => ScopeValueDigestSchema.parse(`sha256:${'A'.repeat(64)}`))
+  assert.throws(() => ScopeValueDigestSchema.parse(`md5:${'a'.repeat(64)}`))
+})
+
+test('capability scope bindings tie grants to resolved fact digests', () => {
+  const binding = CapabilityScopeBindingSchema.parse({
+    factKey: 'contact/recipient',
+    valueDigest: DIGEST
+  })
+
+  assert.deepEqual(binding, {
+    factKey: 'contact/recipient',
+    valueDigest: DIGEST
+  })
+
+  assert.throws(() =>
+    CapabilityScopeBindingSchema.parse({
+      factKey: 'recipient',
+      valueDigest: DIGEST
+    })
+  )
+})
+
+test('scoped capability requests are runtime asks without grant state', () => {
+  const request = ScopedCapabilityRequestSchema.parse({
+    capabilityKey: 'message/send',
+    scopeBindings: [
+      {
+        factKey: 'contact/recipient',
+        valueDigest: DIGEST
+      }
+    ],
+    purpose: 'Ask to send one scoped message.'
+  })
+
+  assert.deepEqual(request, {
+    capabilityKey: 'message/send',
+    scopeBindings: [
+      {
+        factKey: 'contact/recipient',
+        valueDigest: DIGEST
+      }
+    ],
+    purpose: 'Ask to send one scoped message.'
+  })
+
+  assert.deepEqual(
+    ScopedCapabilityRequestSchema.parse({ capabilityKey: 'network/post' }),
+    {
+      capabilityKey: 'network/post',
+      scopeBindings: []
+    }
+  )
+
+  assert.throws(() =>
+    ScopedCapabilityRequestSchema.parse({
+      capabilityKey: 'send_message'
+    })
+  )
+})
+
+test('capability grants are active permissions without ledger status', () => {
+  const grant = CapabilityGrantSchema.parse({
+    grantId: 'tara_send_to_jane',
+    capabilityKey: 'message/send',
+    scopeBindings: [
+      {
+        factKey: 'contact/recipient',
+        valueDigest: DIGEST
+      }
+    ],
+    expiresAt: '2026-06-15T12:00:00.000Z'
+  })
+
+  assert.deepEqual(grant, {
+    grantId: 'tara_send_to_jane',
+    capabilityKey: 'message/send',
+    scopeBindings: [
+      {
+        factKey: 'contact/recipient',
+        valueDigest: DIGEST
+      }
+    ],
+    expiresAt: '2026-06-15T12:00:00.000Z'
+  })
+
+  assert.deepEqual(
+    CapabilityGrantSchema.parse({
+      grantId: 'broad_network_post',
+      capabilityKey: 'network/post'
+    }),
+    {
+      grantId: 'broad_network_post',
+      capabilityKey: 'network/post',
+      scopeBindings: []
+    }
+  )
+
+  assert.throws(() =>
+    CapabilityGrantSchema.parse({
+      grantId: 'tara-send-to-jane',
+      capabilityKey: 'message/send'
+    })
+  )
+  assert.throws(() =>
+    CapabilityGrantSchema.parse({
+      grantId: 'tara_send_to_jane',
+      capabilityKey: 'message/send',
+      expiresAt: 'next week'
     })
   )
 })
