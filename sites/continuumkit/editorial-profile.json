@@ -1,0 +1,71 @@
+{
+  "site": "continuumkit",
+  "title": "Continuum Kit",
+  "canonicalDomain": "https://continuumkit.org",
+  "audience": "Smart outsiders who are curious about AI-assisted work, but are not inside Peter's private project context.",
+  "defaultTakeaway": "The reader should leave with one clear idea they can use in their own work.",
+  "defaultTone": "Honest, concrete, warm, non-corporate, thoughtful, and allergic to hype.",
+  "bannedTone": [
+    "corporate announcement voice",
+    "AI boosterism",
+    "pretending prototypes are finished products",
+    "vague productivity claims without examples"
+  ],
+  "recurringThemes": [
+    "human attention is scarce",
+    "agents should make reality visible",
+    "small coherent product surfaces beat feature sprawl",
+    "complexity needs proof",
+    "private messy work can become clean public artifacts"
+  ],
+  "postKinds": [
+    "experience report",
+    "explainer",
+    "technical deep dive",
+    "product truth",
+    "public note",
+    "philosophical",
+    "practical how-to",
+    "story / narrative",
+    "field note"
+  ],
+  "commonTags": [
+    "ai-assisted-development",
+    "workflow-manager",
+    "commandbook",
+    "product-thinking",
+    "architecture",
+    "human-ai-collaboration"
+  ],
+  "exampleTags": [
+    "rich-hickey",
+    "complexity",
+    "decomplexing",
+    "agent-workflows",
+    "blog-workflow"
+  ],
+  "seoDefaults": {
+    "titleStyle": "Specific claim or useful phrase, not a vague announcement.",
+    "metaDescriptionStyle": "One concrete sentence about the post's useful idea.",
+    "canonicalDomain": "https://continuumkit.org",
+    "includeFaq": false,
+    "internalLinkTargets": [
+      "/blog/",
+      "/"
+    ],
+    "imageAltTextStyle": "Plain description of the actual image, no keyword stuffing."
+  },
+  "sensitivityRules": [
+    "Do not publish raw private logs.",
+    "Do not publish personal source captures unless explicitly approved.",
+    "Do not imply security, automation, or publishing systems are production-ready unless verified.",
+    "Mark speculative product ideas as speculative."
+  ],
+  "publishChecklist": [
+    "Clear human takeaway.",
+    "No raw private context.",
+    "No fake product maturity.",
+    "Tags and description fit the site.",
+    "Explicit publish approval recorded."
+  ]
+}

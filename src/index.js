@@ -5,6 +5,7 @@ import { runShell } from './adapters/shell.js'
 import { createRunContext } from './core/context.js'
 import { loadRecipe } from './core/recipes.js'
 import { runContext } from './core/runner.js'
+import { createBlogHandlers } from './operations/blog.js'
 import { createGitHandlers } from './operations/git.js'
 import { createSimulationHandlers } from './operations/simulation.js'
 
@@ -63,6 +64,7 @@ export async function resumeRunsForEvent({
 
 function createHandlers() {
   return new Map([
+    ...createBlogHandlers(),
     ...createGitHandlers(),
     ...createSimulationHandlers()
   ])
@@ -75,6 +77,7 @@ function createAdapters({ cwd, store, handlers, shell, now, recipesDir }) {
     handlers,
     shell,
     clock: now,
+    projectRoot: path.resolve(recipesDir, '..'),
     async loadRecipe(name) {
       return loadRecipe(recipesDir, name)
     }

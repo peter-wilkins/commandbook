@@ -1,0 +1,19 @@
+{
+  "name": "write_and_publish_blog_post",
+  "description": "Consume a blog seed, load the site editorial profile, and pause for a Blog Intent Grill before drafting.",
+  "usage": "commandbook write_and_publish_blog_post --site continuumkit --seed https://chatgpt.com/share/... --dry-run",
+  "docs": [
+    "docs/runtime/blog-writing-command.md"
+  ],
+  "defaultScope": "current_repo",
+  "defaultSite": "continuumkit",
+  "goal": {
+    "facts": ["blogIntentGrill"],
+    "effects": []
+  },
+  "queue": [
+    { "op": "load_blog_site_profile", "defaultSite": "continuumkit" },
+    { "op": "consume_blog_seed" },
+    { "op": "prepare_blog_intent_grill" }
+  ]
+}
