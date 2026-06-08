@@ -337,6 +337,11 @@ have fact X, want to know what is reachable -> candidate commands and queries
 This is useful for both humans and agents. It powers command autocomplete, gap
 agent search, and "why can't this run?" explanations.
 
+The same registry shape should also support command-composed proof. A command
+path can collect proof handles from the graph edges, drivers, safety policies,
+and recovery rules it uses. See
+[`command-composed-test-suites.md`](command-composed-test-suites.md).
+
 ## Planner V0
 
 Do not start with a general planner.
