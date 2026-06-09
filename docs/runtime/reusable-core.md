@@ -31,6 +31,9 @@ The portable core is:
 
 Everything else is an adapter.
 
+The host boundary for those adapters is described in
+[`platform-runtime-adapter.md`](platform-runtime-adapter.md).
+
 ## V0 Can Be A Script
 
 For Linux-first development, V0 can be a plain JavaScript script:
@@ -101,6 +104,7 @@ QueueItem
 CommandContract
 OperationContract
 DriverContract
+PlatformRuntimeAdapterDescriptor
 PlatformRuntimeRegistration
 CapabilityProvider
 HumanRequirement

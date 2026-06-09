@@ -35,6 +35,9 @@ GitHub is for distribution and collaboration. It is not the execution backend.
 The reusable core boundary is described in
 [`reusable-core.md`](reusable-core.md).
 
+The platform host boundary is described in
+[`platform-runtime-adapter.md`](platform-runtime-adapter.md).
+
 ## Run Store
 
 The coffee grinder only needs a durable key-value shaped store at first.

@@ -8,6 +8,11 @@ import { runContext } from './core/runner.js'
 import { createBlogHandlers } from './operations/blog.js'
 import { createGitHandlers } from './operations/git.js'
 import { createSimulationHandlers } from './operations/simulation.js'
+export {
+  PlatformRuntimeAdapterDescriptorSchema,
+  PlatformRuntimeCapabilitiesSchema,
+  assertPlatformRuntimeAdapter
+} from './core/platform-runtime-adapter.js'
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 export const defaultRecipesDir = path.join(projectRoot, 'recipes')

@@ -469,6 +469,15 @@ The device-local Commandbook process that plans and runs commands.
 The local runtime should not require a central backend. It may fetch recipes from
 a shared registry, but command execution and run state belong locally first.
 
+### Platform Runtime Adapter
+
+The host interface that lets the portable coffee grinder run on a concrete
+platform.
+
+It provides durable run storage, time, and optional platform services such as
+human prompts, event delivery, surface opening, foreground tasks, and package
+inspection.
+
 ### Run Store
 
 The durable local store for coffee grinder run state.
