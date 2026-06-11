@@ -21,6 +21,14 @@
   }
 
   async function loadJson(path, fallbackUrl) {
+    if (window.FieldRelayNative && typeof window.FieldRelayNative.invoke === "function") {
+      const runtimeAsset = invoke({
+        op: "read_runtime_asset",
+        path: path.replace(/^\.\//, "")
+      });
+      if (runtimeAsset.ok) return JSON.parse(runtimeAsset.body);
+    }
+
     try {
       const local = await fetch(path, { cache: "no-store" });
       if (local.ok) return local.json();
