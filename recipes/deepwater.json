@@ -1,0 +1,42 @@
+{
+  "name": "deepwater",
+  "description": "Fetch Portland tide predictions and answer when the water is deep enough for a 0.9m guideline threshold.",
+  "usage": "commandbook deepwater --date-path -20260616",
+  "defaultScope": "public_tide_read",
+  "goal": {
+    "facts": ["deepWater"],
+    "effects": ["public_tide_read"]
+  },
+  "docs": [
+    "Source: https://www.tidetimes.org.uk/portland-tide-times",
+    "Guideline only. TideTimes explicitly says its predictions are not for navigation."
+  ],
+  "queue": [
+    {
+      "op": "fetch_text",
+      "method": "GET",
+      "url": "https://www.tidetimes.org.uk/{locationSlug}-tide-times{datePath}",
+      "defaults": {
+        "locationSlug": "portland",
+        "datePath": ""
+      },
+      "headers": {
+        "Accept": "text/html,*/*",
+        "User-Agent": "Mozilla/5.0 FieldRelay/0.1"
+      },
+      "outputFact": "tideTimesHtml"
+    },
+    {
+      "op": "extract_deepwater_windows",
+      "sourceFact": "tideTimesHtml",
+      "defaults": {
+        "thresholdMeters": "0.9",
+        "dayStart": "06:00",
+        "roundMinutes": "20",
+        "maxStartBeforeHighMinutes": "165",
+        "maxEndAfterHighMinutes": "190"
+      },
+      "outputFact": "deepWater"
+    }
+  ]
+}

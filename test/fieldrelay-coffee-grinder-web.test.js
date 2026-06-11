@@ -67,3 +67,77 @@ test('Field Relay browser coffee grinder runs livewind recipe', async () => {
     JSON.stringify(['fetch_json', 'extract_weatherfile_live_wind'])
   )
 })
+
+test('Field Relay browser coffee grinder runs deepwater recipe', async () => {
+  const sandbox = { console }
+  sandbox.window = sandbox
+  const source = await readFile(new URL('../web/fieldrelay/coffee-grinder.js', import.meta.url), 'utf8')
+  vm.runInNewContext(source, sandbox)
+
+  const grinder = sandbox.CommandbookCoffeeGrinder
+  const recipe = {
+    queue: [
+      {
+        op: 'fetch_text',
+        method: 'GET',
+        url: 'https://www.tidetimes.org.uk/{locationSlug}-tide-times{datePath}',
+        defaults: {
+          locationSlug: 'portland',
+          datePath: ''
+        },
+        outputFact: 'tideTimesHtml'
+      },
+      {
+        op: 'extract_deepwater_windows',
+        sourceFact: 'tideTimesHtml',
+        defaults: {
+          thresholdMeters: '0.9',
+          dayStart: '06:00',
+          roundMinutes: '20',
+          maxStartBeforeHighMinutes: '165',
+          maxEndAfterHighMinutes: '190'
+        },
+        outputFact: 'deepWater'
+      }
+    ]
+  }
+
+  const adapters = grinder.createFieldRelayAdapters({
+    now: () => new Date('2026-06-11T12:00:00Z'),
+    invoke(payload) {
+      assert.equal(payload.op, 'fetch')
+      assert.equal(payload.url, 'https://www.tidetimes.org.uk/portland-tide-times')
+      return {
+        ok: true,
+        status: 200,
+        headers: {},
+        body: `
+          <h1>Portland Tide Times</h1>
+          <iframe id="dates" src="/dates-20260611-43"></iframe>
+          <table id="tides">
+            <tr class="vis2"><td class="tal">High</td><td class="tac"><span>03:16</span></td><td class="tar">1.55m</td></tr>
+            <tr class="vis2"><td class="tal">Low</td><td class="tac"><span>08:34</span></td><td class="tar">0.46m</td></tr>
+            <tr class="vis2"><td class="tal">High</td><td class="tac"><span>16:10</span></td><td class="tar">1.58m</td></tr>
+            <tr class="vis2"><td class="tal">Low</td><td class="tac"><span>20:57</span></td><td class="tar">0.63m</td></tr>
+          </table>
+          <script>var timeServer = new Date(2026, 5, 11, 13, 24, 13)</script>
+        `
+      }
+    }
+  })
+
+  const ctx = grinder.createRunContext({
+    command: 'deepwater',
+    recipe,
+    args: {},
+    now: new Date('2026-06-11T12:00:00Z')
+  })
+  const result = await grinder.runContext(ctx, adapters)
+
+  assert.equal(result.status, 'complete')
+  assert.equal(result.facts.deepWater.summary, '13.40 till 19.20')
+  assert.equal(
+    JSON.stringify(result.completed.map((item) => item.op)),
+    JSON.stringify(['fetch_text', 'extract_deepwater_windows'])
+  )
+})

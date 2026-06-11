@@ -11,6 +11,7 @@ import { createHttpHandlers } from './operations/http.js'
 import { createSimulationHandlers } from './operations/simulation.js'
 import { createAndroidHandlers } from './operations/android.js'
 import { createWeatherfileHandlers } from './operations/weatherfile.js'
+import { createTideTimesHandlers } from './operations/tidetimes.js'
 export {
   PlatformRuntimeAdapterDescriptorSchema,
   PlatformRuntimeCapabilitiesSchema,
@@ -100,7 +101,8 @@ function createHandlers() {
     ...createHttpHandlers(),
     ...createSimulationHandlers(),
     ...createAndroidHandlers(),
-    ...createWeatherfileHandlers()
+    ...createWeatherfileHandlers(),
+    ...createTideTimesHandlers()
   ])
 }
 

@@ -4,10 +4,18 @@
   const commandListEl = document.getElementById("command-list");
   const logEl = document.getElementById("log");
   const resultCard = document.getElementById("result-card");
-  const averageEl = document.getElementById("wind-average");
-  const maxEl = document.getElementById("wind-max");
-  const directionEl = document.getElementById("wind-direction");
-  const spokenEl = document.getElementById("wind-spoken");
+  const resultLabels = [
+    document.getElementById("result-primary-label"),
+    document.getElementById("result-secondary-label"),
+    document.getElementById("result-tertiary-label"),
+    document.getElementById("result-summary-label")
+  ];
+  const resultValues = [
+    document.getElementById("result-primary-value") || document.getElementById("wind-average"),
+    document.getElementById("result-secondary-value") || document.getElementById("wind-max"),
+    document.getElementById("result-tertiary-value") || document.getElementById("wind-direction"),
+    document.getElementById("result-summary-value") || document.getElementById("wind-spoken")
+  ];
 
   function log(message) {
     logEl.textContent = message;
@@ -97,11 +105,29 @@
   }
 
   function renderWind(result) {
+    renderResult([
+      ["AVERAGE", `${result.average} kt`],
+      ["MAX", `${result.max} kt`],
+      ["DIRECTION", result.direction],
+      ["SPOKEN", result.spoken]
+    ]);
+  }
+
+  function renderDeepWater(result) {
+    renderResult([
+      ["STATUS", result.isDeepNow ? "DEEP NOW" : "GUIDE"],
+      ["WINDOWS", result.summary],
+      ["THRESHOLD", `${result.thresholdMeters} m`],
+      ["DATE", result.sourceDate]
+    ]);
+  }
+
+  function renderResult(rows) {
     resultCard.hidden = false;
-    averageEl.textContent = `${result.average} kt`;
-    maxEl.textContent = `${result.max} kt`;
-    directionEl.textContent = result.direction;
-    spokenEl.textContent = result.spoken;
+    rows.forEach(([label, value], index) => {
+      if (resultLabels[index]) resultLabels[index].textContent = label;
+      if (resultValues[index]) resultValues[index].textContent = value;
+    });
     resultCard.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
@@ -141,6 +167,9 @@
         if (result.facts.liveWind) {
           renderWind(result.facts.liveWind);
           log(`coffee grinder complete: ${result.facts.liveWind.spoken}`);
+        } else if (result.facts.deepWater) {
+          renderDeepWater(result.facts.deepWater);
+          log(`coffee grinder complete: ${result.facts.deepWater.summary}`);
         } else {
           renderGenericResult(command.name, result);
         }

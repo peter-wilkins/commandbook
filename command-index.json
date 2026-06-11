@@ -16,6 +16,18 @@
       "sha256": "422ae3b209cba80c21a069d302b6b4737bbbcad1ac300e4520ab85b629fc3a43"
     },
     {
+      "name": "deepwater",
+      "description": "Fetch Portland tide predictions and answer when the water is deep enough for a 0.9m guideline threshold.",
+      "usage": "commandbook deepwater --date-path -20260616",
+      "defaultScope": "public_tide_read",
+      "docs": [
+        "Source: https://www.tidetimes.org.uk/portland-tide-times",
+        "Guideline only. TideTimes explicitly says its predictions are not for navigation."
+      ],
+      "recipePath": "recipes/deepwater.json",
+      "sha256": "6dcf35a191a9831325d1ee36475a41957a8eeb56b5c4f97a9b596ee32ee0d829"
+    },
+    {
       "name": "git_push_current_branch",
       "description": "Push the current branch, repairing missing git identity inside the current run if that blocks the push.",
       "usage": "commandbook git_push_current_branch --yes",
@@ -73,5 +85,5 @@
       "sha256": "0a7c34b285906f5cc34cef8c75b519dfe5252cadea705029d64c8449c6815ac7"
     }
   ],
-  "indexHash": "5a3c77111b5fd9d1c7b63e6e4cdfcf351fc76945de94ec9cda56aba23069fc0d"
+  "indexHash": "029fcc6c5931a03e919aeb67cddf6e2618f7a6d72409c42d094f051d50129028"
 }

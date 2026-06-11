@@ -2,8 +2,45 @@ import { addReceipt } from '../core/context.js'
 
 export function createHttpHandlers() {
   return new Map([
+    ['fetch_text', fetchText],
     ['fetch_json', fetchJson]
   ])
+}
+
+async function fetchText(ctx, item, adapters) {
+  const url = renderTemplate(item.url, ctx, item.defaults)
+  if (!url) throw new Error('fetch_text needs item.url')
+
+  const method = item.method ?? 'GET'
+  const headers = renderHeaders(item.headers ?? {}, ctx, item.defaults)
+  const response = await (adapters.fetch ?? fetch)(url, {
+    method,
+    headers: {
+      accept: 'text/html,*/*',
+      ...headers
+    }
+  })
+
+  if (!response.ok) {
+    throw new Error(`fetch_text failed: HTTP ${response.status} ${response.statusText ?? ''}`.trim())
+  }
+
+  const body = await response.text()
+  const outputFact = item.outputFact ?? 'lastFetchText'
+
+  return addReceipt({
+    ...ctx,
+    facts: {
+      ...ctx.facts,
+      [outputFact]: body
+    }
+  }, {
+    op: 'fetch_text',
+    result: 'fetched',
+    url,
+    status: response.status,
+    outputFact
+  }, adapters.clock)
 }
 
 async function fetchJson(ctx, item, adapters) {
@@ -56,7 +93,7 @@ function renderTemplate(value, ctx, defaults = {}) {
   if (typeof value !== 'string') return value
   return value.replace(/\{([a-zA-Z0-9_.-]+)\}/g, (_match, key) => {
     const resolved = lookup(key, ctx.facts.commandArgs) ?? lookup(key, ctx.facts) ?? lookup(key, defaults)
-    if (resolved === undefined || resolved === null || resolved === '') {
+    if (resolved === undefined || resolved === null) {
       throw new Error(`Missing template value: ${key}`)
     }
     return encodeURIComponent(String(resolved))
