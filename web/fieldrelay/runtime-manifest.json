@@ -2,6 +2,10 @@
   "schema": "commandbook.fieldrelay.web_runtime_manifest.v1",
   "assets": [
     {
+      "path": "command-index.json",
+      "url": "https://raw.githubusercontent.com/peter-wilkins/commandbook/main/command-index.json"
+    },
+    {
       "path": "coffee-grinder.js",
       "url": "https://raw.githubusercontent.com/peter-wilkins/commandbook/main/web/fieldrelay/coffee-grinder.js"
     },

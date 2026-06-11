@@ -16,6 +16,7 @@ https://raw.githubusercontent.com/peter-wilkins/commandbook/main/web/fieldrelay/
 Raw runtime URLs:
 
 ```text
+https://raw.githubusercontent.com/peter-wilkins/commandbook/main/command-index.json
 https://raw.githubusercontent.com/peter-wilkins/commandbook/main/web/fieldrelay/coffee-grinder.js
 https://raw.githubusercontent.com/peter-wilkins/commandbook/main/web/fieldrelay/runtime.js
 ```

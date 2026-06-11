@@ -116,16 +116,18 @@
       invoke,
       handlers: new Map([
         ["fetch", fetchHandler],
+        ["fetch_json", fetchJsonHandler],
         ["extract_weatherfile_live_wind", extractWeatherfileLiveWindHandler]
       ])
     };
   }
 
   async function fetchHandler(ctx, item, adapters) {
+    const args = { ...(item.defaults || {}), ...(ctx.facts.commandArgs || {}) };
     const response = adapters.invoke({
       op: "fetch",
       method: item.method || "GET",
-      url: template(item.url, ctx.facts.commandArgs || {}),
+      url: template(item.url, args),
       headers: item.headers || {},
       body: item.body
     });
@@ -143,13 +145,26 @@
     };
   }
 
-  async function extractWeatherfileLiveWindHandler(ctx, item) {
-    const response = ctx.facts[item.sourceFact];
-    if (!response || typeof response.body !== "string") {
-      throw new Error(`Missing fetch response fact: ${item.sourceFact}`);
-    }
+  async function fetchJsonHandler(ctx, item, adapters) {
+    const ctxWithResponse = await fetchHandler(
+      { ...ctx, facts: { ...ctx.facts } },
+      { ...item, outputFact: `${item.outputFact}Response` },
+      adapters
+    );
+    const response = ctxWithResponse.facts[`${item.outputFact}Response`];
+    return {
+      ...ctx,
+      facts: {
+        ...ctx.facts,
+        [item.outputFact]: JSON.parse(response.body)
+      }
+    };
+  }
 
-    const payload = JSON.parse(response.body);
+  async function extractWeatherfileLiveWindHandler(ctx, item) {
+    const source = ctx.facts[item.sourceFact];
+    if (!source) throw new Error(`Missing weather fact: ${item.sourceFact}`);
+    const payload = typeof source.body === "string" ? JSON.parse(source.body) : source;
     const reading = payload && payload.data && payload.data.lastaverage;
     if (!reading) {
       throw new Error("WeatherFile response did not include data.lastaverage.");

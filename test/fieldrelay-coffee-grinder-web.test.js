@@ -13,15 +13,18 @@ test('Field Relay browser coffee grinder runs livewind recipe', async () => {
   const recipe = {
     queue: [
       {
-        op: 'fetch',
+        op: 'fetch_json',
         method: 'GET',
         url: 'https://weatherfile.com/V03/loc/{locId}/infowindow.ggl',
+        defaults: {
+          locId: 'GBR00005'
+        },
         headers: { 'wf-tkn': 'PUBLIC' },
-        outputFact: 'weatherfileResponse'
+        outputFact: 'weatherfileInfowindow'
       },
       {
         op: 'extract_weatherfile_live_wind',
-        sourceFact: 'weatherfileResponse',
+        sourceFact: 'weatherfileInfowindow',
         outputFact: 'liveWind'
       }
     ]
@@ -52,7 +55,7 @@ test('Field Relay browser coffee grinder runs livewind recipe', async () => {
   const ctx = grinder.createRunContext({
     command: 'livewind',
     recipe,
-    args: { locId: 'GBR00005' },
+    args: {},
     now: new Date('2026-06-11T12:00:00Z')
   })
   const result = await grinder.runContext(ctx, adapters)
@@ -61,6 +64,6 @@ test('Field Relay browser coffee grinder runs livewind recipe', async () => {
   assert.equal(result.facts.liveWind.spoken, '23 31 SW')
   assert.equal(
     JSON.stringify(result.completed.map((item) => item.op)),
-    JSON.stringify(['fetch', 'extract_weatherfile_live_wind'])
+    JSON.stringify(['fetch_json', 'extract_weatherfile_live_wind'])
   )
 })
