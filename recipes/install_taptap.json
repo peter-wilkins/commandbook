@@ -1,0 +1,30 @@
+{
+  "name": "install_taptap",
+  "description": "Guided installation and setup of the TapTap wake gesture layer on a connected Android phone.",
+  "usage": "commandbook install_taptap [--yes]",
+  "docs": [
+    "docs/runtime/platform-runtime-adapter.md",
+    "docs/platforms/android-wakeup-notes.md"
+  ],
+  "defaultScope": "android_device",
+  "goal": {
+    "facts": [
+      "android.device_connected",
+      "android.taptap_installed",
+      "android.taptap_accessibility_enabled",
+      "android.taptap_shortcut_configured"
+    ],
+    "effects": [
+      "taptap_setup_complete"
+    ]
+  },
+  "queue": [
+    { "op": "android_detect_device" },
+    { "op": "android_check_taptap_installed" },
+    { "op": "android_ensure_taptap_accessibility" },
+    { "op": "android_check_field_relay_shortcut" },
+    { "op": "android_prompt_shortcut_configuration" },
+    { "op": "android_save_setup_record" },
+    { "op": "ask_are_you_happy" }
+  ]
+}

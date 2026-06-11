@@ -8,6 +8,7 @@ import { runContext } from './core/runner.js'
 import { createBlogHandlers } from './operations/blog.js'
 import { createGitHandlers } from './operations/git.js'
 import { createSimulationHandlers } from './operations/simulation.js'
+import { createAndroidHandlers } from './operations/android.js'
 export {
   PlatformRuntimeAdapterDescriptorSchema,
   PlatformRuntimeCapabilitiesSchema,
@@ -71,7 +72,8 @@ function createHandlers() {
   return new Map([
     ...createBlogHandlers(),
     ...createGitHandlers(),
-    ...createSimulationHandlers()
+    ...createSimulationHandlers(),
+    ...createAndroidHandlers()
   ])
 }
 
