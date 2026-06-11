@@ -1,8 +1,14 @@
 (function () {
   const commandIndexUrl = "https://raw.githubusercontent.com/peter-wilkins/commandbook/main/command-index.json";
+  const pinnedCommandKeys = ["livewind", "deepwater"];
+  const readOnlyCommandKeys = new Set(["livewind", "deepwater"]);
+  const usageStorageKey = "fieldrelay.browserlab.usage.v1";
 
+  const pinnedListEl = document.getElementById("pinned-command-list");
   const commandListEl = document.getElementById("command-list");
-  const logEl = document.getElementById("log");
+  const statusLineEl = document.getElementById("status-line");
+  const inputEl = document.getElementById("home-input");
+  const sendEl = document.getElementById("home-send");
   const resultCard = document.getElementById("result-card");
   const resultLabels = [
     document.getElementById("result-primary-label"),
@@ -17,8 +23,11 @@
     document.getElementById("result-summary-value") || document.getElementById("wind-spoken")
   ];
 
-  function log(message) {
-    logEl.textContent = message;
+  let commandIndexState = null;
+
+  function setStatus(message, isError) {
+    statusLineEl.textContent = message;
+    statusLineEl.classList.toggle("error", Boolean(isError));
   }
 
   function invoke(payload) {
@@ -72,24 +81,67 @@
     return loadJson(`./${command.recipePath.split("/").pop()}`, recipeUrl);
   }
 
-  function audioName(name) {
-    return name.replace(/_/g, "");
+  function commandKey(name) {
+    return String(name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
+
+  function displayName(name) {
+    const key = commandKey(name);
+    if (key === "livewind") return "Live wind";
+    if (key === "deepwater") return "Deep water";
+    return String(name || "").replace(/_/g, " ");
+  }
+
+  function loadUsage() {
+    try {
+      return JSON.parse(window.localStorage.getItem(usageStorageKey) || "{}");
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function incrementUsage(command) {
+    const usage = loadUsage();
+    const key = commandKey(command.name);
+    usage[key] = (usage[key] || 0) + 1;
+    window.localStorage.setItem(usageStorageKey, JSON.stringify(usage));
   }
 
   function renderCommands(commandIndex) {
-    commandListEl.innerHTML = "";
-    commandIndex.commands.forEach((command) => {
+    commandIndexState = commandIndex;
+    const commands = commandIndex.commands || [];
+    const usage = loadUsage();
+    const pinned = pinnedCommandKeys
+      .map((key) => commands.find((command) => commandKey(command.name) === key))
+      .filter(Boolean);
+    const pinnedSet = new Set(pinned.map((command) => commandKey(command.name)));
+    const frequent = commands
+      .filter((command) => !pinnedSet.has(commandKey(command.name)))
+      .sort((a, b) => (usage[commandKey(b.name)] || 0) - (usage[commandKey(a.name)] || 0));
+
+    renderCommandList(pinnedListEl, pinned, "No pinned commands found.");
+    renderCommandList(commandListEl, frequent, "No other commands found.");
+  }
+
+  function renderCommandList(targetEl, commands, emptyText) {
+    targetEl.innerHTML = "";
+    if (!commands.length) {
+      targetEl.textContent = emptyText;
+      return;
+    }
+
+    commands.forEach((command) => {
       const row = document.createElement("div");
       row.className = "command-row";
-      row.addEventListener("click", (event) => runCommand(event, commandIndex, command));
+      row.addEventListener("click", (event) => handleCommandClick(event, command));
 
       const link = document.createElement("a");
-      link.href = `#${audioName(command.name)}`;
-      link.textContent = audioName(command.name);
+      link.href = `#${commandKey(command.name)}`;
+      link.textContent = displayName(command.name);
       link.className = "command-link";
       link.addEventListener("click", (event) => {
         event.stopPropagation();
-        runCommand(event, commandIndex, command);
+        handleCommandClick(event, command);
       });
 
       const description = document.createElement("p");
@@ -97,11 +149,25 @@
 
       const rawName = document.createElement("p");
       rawName.className = "muted";
-      rawName.textContent = command.name;
+      rawName.textContent = readOnlyCommandKeys.has(commandKey(command.name))
+        ? "Read-only. Runs immediately."
+        : "Dry run first.";
 
       row.append(link, description, rawName);
-      commandListEl.append(row);
+      targetEl.append(row);
     });
+  }
+
+  function handleCommandClick(event, command) {
+    event.preventDefault();
+    const key = commandKey(command.name);
+    incrementUsage(command);
+    renderCommands(commandIndexState);
+    if (readOnlyCommandKeys.has(key)) {
+      runCommand(commandIndexState, command);
+      return;
+    }
+    renderDryRun(command);
   }
 
   function renderWind(result) {
@@ -131,16 +197,24 @@
     resultCard.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  function renderGenericResult(commandName, result) {
-    resultCard.hidden = true;
-    log(`${audioName(commandName)} complete: ${JSON.stringify(result.facts)}`);
-    logEl.scrollIntoView({ behavior: "smooth", block: "center" });
+  function renderDryRun(command) {
+    renderResult([
+      ["COMMAND", displayName(command.name)],
+      ["SUMMARY", command.description || "No summary."],
+      ["INPUTS", command.usage || "Not specified."],
+      ["PERMISSION", "Not read-only. Dry run only."]
+    ]);
+    setStatus(`${displayName(command.name)} was not run.`);
   }
 
-  function runCommand(event, commandIndex, command) {
-    event.preventDefault();
-    log(`Running ${audioName(command.name)}...`);
-    logEl.classList.remove("error");
+  function renderGenericResult(commandName, result) {
+    resultCard.hidden = true;
+    setStatus(`${displayName(commandName)} complete: ${JSON.stringify(result.facts)}`);
+  }
+
+  function runCommand(commandIndex, command) {
+    if (!commandIndex || !command) return;
+    setStatus(`Running ${displayName(command.name)}...`);
 
     window.setTimeout(async function () {
       try {
@@ -166,30 +240,78 @@
 
         if (result.facts.liveWind) {
           renderWind(result.facts.liveWind);
-          log(`coffee grinder complete: ${result.facts.liveWind.spoken}`);
+          setStatus(result.facts.liveWind.spoken);
         } else if (result.facts.deepWater) {
           renderDeepWater(result.facts.deepWater);
-          log(`coffee grinder complete: ${result.facts.deepWater.summary}`);
+          setStatus(result.facts.deepWater.summary);
         } else {
           renderGenericResult(command.name, result);
         }
       } catch (error) {
-        log(`Error: ${error.message || error}`);
-        logEl.classList.add("error");
+        setStatus(`Error: ${error.message || error}`, true);
       }
     }, 20);
   }
 
-  async function init() {
+  function findCommandByText(text) {
+    if (!commandIndexState) return null;
+    const key = commandKey(text.replace(/^\//, ""));
+    return (commandIndexState.commands || []).find((command) => commandKey(command.name) === key);
+  }
+
+  function openConversation(text) {
     try {
-      log("Loading Commandbook commands...");
+      const response = invoke({
+        op: "open_conversation",
+        text
+      });
+      if (!response.ok) throw new Error(response.body || response.error || "Conversation opener failed.");
+    } catch (error) {
+      setStatus(`Could not open Field Relay Lab: ${error.message || error}`, true);
+    }
+  }
+
+  function submitHomeInput() {
+    const value = inputEl.value.trim();
+    if (!value) return;
+    inputEl.value = "";
+    if (value.startsWith("/")) {
+      const command = findCommandByText(value);
+      if (!command) {
+        openConversation(value);
+        return;
+      }
+      handleCommandClick(new Event("submit"), command);
+      return;
+    }
+    openConversation(value);
+  }
+
+  function bindInput() {
+    sendEl.addEventListener("click", submitHomeInput);
+    inputEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        submitHomeInput();
+      }
+    });
+    inputEl.addEventListener("input", () => {
+      inputEl.style.height = "auto";
+      inputEl.style.height = `${inputEl.scrollHeight}px`;
+    });
+  }
+
+  async function init() {
+    bindInput();
+    try {
+      setStatus("Loading Commandbook commands...");
       const commandIndex = await loadCommandIndex();
       renderCommands(commandIndex);
-      log(`Loaded ${commandIndex.commands.length} commands.`);
+      setStatus(`Loaded ${commandIndex.commands.length} commands.`);
     } catch (error) {
+      pinnedListEl.textContent = "Pinned commands unavailable.";
       commandListEl.textContent = "Command list unavailable.";
-      log(`Error: ${error.message || error}`);
-      logEl.classList.add("error");
+      setStatus(`Error: ${error.message || error}`, true);
     }
   }
 
