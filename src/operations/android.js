@@ -132,10 +132,24 @@ async function androidCheckFieldRelayShortcut(ctx, _item, adapters) {
     throw new Error('Field Relay app (dev.peter.fieldrelay) is not installed on the device. Please build and run Field Relay first.')
   }
 
-  // Check shortcut manager dumpsys
-  const shortcutCheck = await adapters.shell('adb', ['-s', deviceId, 'shell', 'dumpsys', 'shortcut'])
-  const hasShortcut = shortcutCheck.stdout.includes('dev.peter.fieldrelay') &&
-                      (shortcutCheck.stdout.includes('field_relay_capture') || shortcutCheck.stdout.includes('Field Relay Capture'))
+  const shortcutCheck = await adapters.shell('adb', [
+    '-s',
+    deviceId,
+    'shell',
+    'cmd',
+    'shortcut',
+    'get-shortcuts',
+    '--user',
+    '0',
+    'dev.peter.fieldrelay'
+  ])
+  throwIfShellFailed(shortcutCheck, 'Failed to query Field Relay shortcuts')
+
+  // Some Android builds redact shortcut ids/labels in shell output, so verify
+  // the static shortcut by package, target activity, and a ShortcutInfo record.
+  const hasShortcut = shortcutCheck.stdout.includes('ShortcutInfo') &&
+                      shortcutCheck.stdout.includes('packageName=dev.peter.fieldrelay') &&
+                      shortcutCheck.stdout.includes('dev.peter.fieldrelay.MainActivity')
 
   if (!hasShortcut) {
     throw new Error('Field Relay Capture shortcut could not be found. Please ensure the app is built with shortcut support.')

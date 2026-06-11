@@ -119,6 +119,38 @@ test('install_taptap flow', async (t) => {
     assert.match(result.failures[0].message, /dev\.peter\.fieldrelay.*is not installed/)
   })
 
+  await t.test('fails if Field Relay shortcut is not exposed', async () => {
+    const mockShell = async (command, args) => {
+      if (command === 'adb' && args.includes('devices')) {
+        return { ok: true, code: 0, stdout: 'List of devices attached\nRF8N6017PKY\tdevice\n', stderr: '' }
+      }
+      if (command === 'adb' && args.includes('pm') && args.includes('com.kieronquinn.app.taptap')) {
+        return { ok: true, code: 0, stdout: 'package:com.kieronquinn.app.taptap', stderr: '' }
+      }
+      if (command === 'adb' && args.includes('settings') && args.includes('enabled_accessibility_services')) {
+        return { ok: true, code: 0, stdout: 'com.kieronquinn.app.taptap', stderr: '' }
+      }
+      if (command === 'adb' && args.includes('pm') && args.includes('dev.peter.fieldrelay')) {
+        return { ok: true, code: 0, stdout: 'package:dev.peter.fieldrelay', stderr: '' }
+      }
+      if (command === 'adb' && args.includes('cmd') && args.includes('shortcut') && args.includes('get-shortcuts')) {
+        return { ok: true, code: 0, stdout: 'Success', stderr: '' }
+      }
+      return { ok: true, code: 0, stdout: '', stderr: '' }
+    }
+
+    const result = await runCommand({
+      command: 'install_taptap',
+      args: {},
+      cwd: root,
+      storeRoot,
+      shell: mockShell
+    })
+
+    assert.equal(result.status, 'failed')
+    assert.match(result.failures[0].message, /Field Relay Capture shortcut could not be found/)
+  })
+
   await t.test('pauses for double-tap configuration if not auto-approved', async () => {
     let monkeyLaunched = false
     const mockShell = async (command, args) => {
@@ -134,8 +166,13 @@ test('install_taptap flow', async (t) => {
       if (command === 'adb' && args.includes('pm') && args.includes('dev.peter.fieldrelay')) {
         return { ok: true, code: 0, stdout: 'package:dev.peter.fieldrelay', stderr: '' }
       }
-      if (command === 'adb' && args.includes('dumpsys') && args.includes('shortcut')) {
-        return { ok: true, code: 0, stdout: 'Package: dev.peter.fieldrelay\nfield_relay_capture\n', stderr: '' }
+      if (command === 'adb' && args.includes('cmd') && args.includes('shortcut') && args.includes('get-shortcuts')) {
+        return {
+          ok: true,
+          code: 0,
+          stdout: 'ShortcutInfo {id=***, flags=0x1a4 [ImManIc-rStr]\n  packageName=dev.peter.fieldrelay\n  activity=ComponentInfo{dev.peter.fieldrelay/dev.peter.fieldrelay.MainActivity}\n  longLabel=***, resId=2130837509[shortcut_capture]\n}\nSuccess',
+          stderr: ''
+        }
       }
       if (command === 'adb' && args.includes('monkey') && args.includes('com.kieronquinn.app.taptap')) {
         monkeyLaunched = true
@@ -171,8 +208,13 @@ test('install_taptap flow', async (t) => {
       if (command === 'adb' && args.includes('pm') && args.includes('dev.peter.fieldrelay')) {
         return { ok: true, code: 0, stdout: 'package:dev.peter.fieldrelay', stderr: '' }
       }
-      if (command === 'adb' && args.includes('dumpsys') && args.includes('shortcut')) {
-        return { ok: true, code: 0, stdout: 'Package: dev.peter.fieldrelay\nfield_relay_capture\n', stderr: '' }
+      if (command === 'adb' && args.includes('cmd') && args.includes('shortcut') && args.includes('get-shortcuts')) {
+        return {
+          ok: true,
+          code: 0,
+          stdout: 'ShortcutInfo {id=***, flags=0x1a4 [ImManIc-rStr]\n  packageName=dev.peter.fieldrelay\n  activity=ComponentInfo{dev.peter.fieldrelay/dev.peter.fieldrelay.MainActivity}\n  longLabel=***, resId=2130837509[shortcut_capture]\n}\nSuccess',
+          stderr: ''
+        }
       }
       return { ok: true, code: 0, stdout: '', stderr: '' }
     }
