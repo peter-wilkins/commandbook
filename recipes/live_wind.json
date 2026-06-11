@@ -1,0 +1,29 @@
+{
+  "name": "live_wind",
+  "description": "Fetch the latest public WeatherFile wind average, max, and direction for a location.",
+  "usage": "commandbook live_wind --loc-id GBR00005",
+  "defaultScope": "public_weather_read",
+  "goal": {
+    "facts": ["liveWind"],
+    "effects": ["public_weather_read"]
+  },
+  "queue": [
+    {
+      "op": "fetch_json",
+      "method": "GET",
+      "url": "https://weatherfile.com/V03/loc/{locId}/infowindow.ggl",
+      "defaults": {
+        "locId": "GBR00005"
+      },
+      "headers": {
+        "wf-tkn": "PUBLIC"
+      },
+      "outputFact": "weatherfileInfowindow"
+    },
+    {
+      "op": "extract_weatherfile_live_wind",
+      "sourceFact": "weatherfileInfowindow",
+      "outputFact": "liveWind"
+    }
+  ]
+}

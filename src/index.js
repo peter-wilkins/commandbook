@@ -7,8 +7,10 @@ import { loadRecipe } from './core/recipes.js'
 import { runContext } from './core/runner.js'
 import { createBlogHandlers } from './operations/blog.js'
 import { createGitHandlers } from './operations/git.js'
+import { createHttpHandlers } from './operations/http.js'
 import { createSimulationHandlers } from './operations/simulation.js'
 import { createAndroidHandlers } from './operations/android.js'
+import { createWeatherfileHandlers } from './operations/weatherfile.js'
 export {
   PlatformRuntimeAdapterDescriptorSchema,
   PlatformRuntimeCapabilitiesSchema,
@@ -25,13 +27,14 @@ export async function runCommand({
   storeRoot = path.join(cwd, '.commandbook'),
   recipesDir = defaultRecipesDir,
   now = () => new Date(),
-  shell = runShell
+  shell = runShell,
+  fetch = globalThis.fetch
 }) {
   const recipe = await loadRecipe(recipesDir, command)
   const store = new FileRunStore(storeRoot)
   const handlers = createHandlers()
 
-  const adapters = createAdapters({ cwd, store, handlers, shell, now, recipesDir })
+  const adapters = createAdapters({ cwd, store, handlers, shell, fetch, now, recipesDir })
 
   const ctx = createRunContext({
     command,
@@ -94,17 +97,20 @@ function createHandlers() {
   return new Map([
     ...createBlogHandlers(),
     ...createGitHandlers(),
+    ...createHttpHandlers(),
     ...createSimulationHandlers(),
-    ...createAndroidHandlers()
+    ...createAndroidHandlers(),
+    ...createWeatherfileHandlers()
   ])
 }
 
-function createAdapters({ cwd, store, handlers, shell, now, recipesDir }) {
+function createAdapters({ cwd, store, handlers, shell, fetch, now, recipesDir }) {
   return {
     cwd,
     store,
     handlers,
     shell,
+    fetch,
     clock: now,
     projectRoot: path.resolve(recipesDir, '..'),
     async loadRecipe(name) {
