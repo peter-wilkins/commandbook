@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Field Relay Lab</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f6f4ef;
+      --ink: #1a201d;
+      --muted: #657069;
+      --line: #d6d1c7;
+      --panel: #ffffff;
+      --blue: #185cae;
+      --green: #1e6f5c;
+      --amber: #b36b00;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    header {
+      display: grid;
+      gap: 8px;
+      padding: 6px 0 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .header-copy {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .surface {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .command {
+      display: grid;
+      gap: 6px;
+      padding: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    a.command-link {
+      color: var(--blue);
+      font-size: 19px;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      width: fit-content;
+    }
+
+    .command-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .command-row {
+      display: grid;
+      gap: 4px;
+      padding: 0 0 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .command-row:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    dl {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+      margin: 0;
+    }
+
+    dt {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    dd {
+      margin: 2px 0 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      margin: 0;
+      padding: 10px;
+      border-radius: 8px;
+      background: #202623;
+      color: #eef5ef;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .pill {
+      display: inline-flex;
+      width: fit-content;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e7f1ed;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .error {
+      color: #8d1f1f;
+      font-weight: 700;
+    }
+
+    button {
+      min-height: 44px;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 14px;
+      background: var(--green);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="header-row">
+        <div class="header-copy">
+          <h1>Browser Lab</h1>
+          <p class="muted">Pinned links for fast read-only commands. Use Field Relay Lab for conversation.</p>
+        </div>
+        <button id="open-conversation" type="button">Field Relay Lab</button>
+      </div>
+      <p class="muted" id="status-line">Ready.</p>
+    </header>
+
+    <section class="surface" aria-label="Commands">
+      <article class="command">
+        <span class="pill">pinned</span>
+        <div class="command-list" id="pinned-command-list">Loading pinned commands...</div>
+      </article>
+
+      <article class="command">
+        <span class="pill">frequent</span>
+        <div class="command-list" id="command-list">Loading Commandbook commands...</div>
+      </article>
+
+      <article class="command" id="result-card" hidden>
+        <span class="pill">result</span>
+        <dl>
+          <div>
+            <dt id="result-primary-label">Average</dt>
+            <dd id="result-primary-value">-</dd>
+          </div>
+          <div>
+            <dt id="result-secondary-label">Max</dt>
+            <dd id="result-secondary-value">-</dd>
+          </div>
+          <div>
+            <dt id="result-tertiary-label">Direction</dt>
+            <dd id="result-tertiary-value">-</dd>
+          </div>
+          <div>
+            <dt id="result-summary-label">Spoken</dt>
+            <dd id="result-summary-value">-</dd>
+          </div>
+        </dl>
+      </article>
+
+    </section>
+  </main>
+
+  <script src="./coffee-grinder.js"></script>
+  <script src="./runtime.js"></script>
+</body>
+</html>

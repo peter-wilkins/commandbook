@@ -7,8 +7,7 @@
   const pinnedListEl = document.getElementById("pinned-command-list");
   const commandListEl = document.getElementById("command-list");
   const statusLineEl = document.getElementById("status-line");
-  const inputEl = document.getElementById("home-input");
-  const sendEl = document.getElementById("home-send");
+  const openConversationEl = document.getElementById("open-conversation");
   const resultCard = document.getElementById("result-card");
   const resultLabels = [
     document.getElementById("result-primary-label"),
@@ -105,6 +104,14 @@
     const key = commandKey(command.name);
     usage[key] = (usage[key] || 0) + 1;
     window.localStorage.setItem(usageStorageKey, JSON.stringify(usage));
+    try {
+      invoke({
+        op: "record_command_usage",
+        name: command.name
+      });
+    } catch (_) {
+      // Browser localStorage remains the fallback outside the Android shell.
+    }
   }
 
   function renderCommands(commandIndex) {
@@ -253,12 +260,6 @@
     }, 20);
   }
 
-  function findCommandByText(text) {
-    if (!commandIndexState) return null;
-    const key = commandKey(text.replace(/^\//, ""));
-    return (commandIndexState.commands || []).find((command) => commandKey(command.name) === key);
-  }
-
   function openConversation(text) {
     try {
       const response = invoke({
@@ -271,38 +272,12 @@
     }
   }
 
-  function submitHomeInput() {
-    const value = inputEl.value.trim();
-    if (!value) return;
-    inputEl.value = "";
-    if (value.startsWith("/")) {
-      const command = findCommandByText(value);
-      if (!command) {
-        openConversation(value);
-        return;
-      }
-      handleCommandClick(new Event("submit"), command);
-      return;
-    }
-    openConversation(value);
-  }
-
-  function bindInput() {
-    sendEl.addEventListener("click", submitHomeInput);
-    inputEl.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        submitHomeInput();
-      }
-    });
-    inputEl.addEventListener("input", () => {
-      inputEl.style.height = "auto";
-      inputEl.style.height = `${inputEl.scrollHeight}px`;
-    });
+  function bindChrome() {
+    openConversationEl.addEventListener("click", () => openConversation(""));
   }
 
   async function init() {
-    bindInput();
+    bindChrome();
     try {
       setStatus("Loading Commandbook commands...");
       const commandIndex = await loadCommandIndex();

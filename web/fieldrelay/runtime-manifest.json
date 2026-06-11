@@ -2,6 +2,10 @@
   "schema": "commandbook.fieldrelay.web_runtime_manifest.v1",
   "assets": [
     {
+      "path": "index.html",
+      "url": "https://raw.githubusercontent.com/peter-wilkins/commandbook/main/web/fieldrelay/index.html"
+    },
+    {
       "path": "command-index.json",
       "url": "https://raw.githubusercontent.com/peter-wilkins/commandbook/main/command-index.json"
     },
