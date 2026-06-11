@@ -1,0 +1,68 @@
+{
+  "schema": "commandbook.command_index.v1",
+  "source": "github.com/peter-wilkins/commandbook",
+  "rawBaseUrl": "https://raw.githubusercontent.com/peter-wilkins/commandbook/main/",
+  "commands": [
+    {
+      "name": "configure_git_identity",
+      "description": "Configure git user.name and user.email for the current repository.",
+      "usage": "commandbook configure_git_identity --name \"Your Name\" --email you@example.com --yes",
+      "defaultScope": "current_repo",
+      "docs": [
+        "docs/examples/android-settings-guided-change.md",
+        "docs/runtime/operation-patterns.md"
+      ],
+      "recipePath": "recipes/configure_git_identity.json",
+      "sha256": "422ae3b209cba80c21a069d302b6b4737bbbcad1ac300e4520ab85b629fc3a43"
+    },
+    {
+      "name": "git_push_current_branch",
+      "description": "Push the current branch, repairing missing git identity inside the current run if that blocks the push.",
+      "usage": "commandbook git_push_current_branch --yes",
+      "defaultScope": "current_repo",
+      "docs": [
+        "docs/runtime/reusable-core.md",
+        "docs/runtime/operation-patterns.md"
+      ],
+      "recipePath": "recipes/git_push_current_branch.json",
+      "sha256": "1469e58d018dadcb05c08293d143b3fd0ffd4824900b86b951d1f788ce00ed2a"
+    },
+    {
+      "name": "install_taptap",
+      "description": "Guided installation and setup of the TapTap wake gesture layer on a connected Android phone.",
+      "usage": "commandbook install_taptap [--yes]",
+      "defaultScope": "android_device",
+      "docs": [
+        "docs/runtime/platform-runtime-adapter.md",
+        "docs/platforms/android-wakeup-notes.md"
+      ],
+      "recipePath": "recipes/install_taptap.json",
+      "sha256": "8f405a71a20573ec8edc351d8cc2190954cad9c7381c3210c46194ffabd459f1"
+    },
+    {
+      "name": "simulate_water_trip_logger",
+      "description": "Simulate a water-trip logger slice with local save, live ping, event pause, and resume.",
+      "usage": "commandbook simulate_water_trip_logger --network offline --yes",
+      "defaultScope": "local_simulator",
+      "docs": [
+        "docs/examples/water-trip-location-logger.md",
+        "docs/runtime/runtime-events.md",
+        "docs/runtime/scheduled-runs-and-interrupts.md"
+      ],
+      "recipePath": "recipes/simulate_water_trip_logger.json",
+      "sha256": "8f247903f7e7c8b7b3ff0bb47e2475a8e9fa7676e586fe6802a2c930bc5a62ed"
+    },
+    {
+      "name": "write_and_publish_blog_post",
+      "description": "Consume a blog seed, load the site editorial profile, pause for a Blog Intent Grill, then draft when intent answers are supplied.",
+      "usage": "commandbook write_and_publish_blog_post --site continuumkit --seed https://chatgpt.com/share/... --intent-file sites/continuumkit/blog-intents/hickey-decomplex-public.json --blog-repo /path/to/blog",
+      "defaultScope": "current_repo",
+      "docs": [
+        "docs/runtime/blog-writing-command.md"
+      ],
+      "recipePath": "recipes/write_and_publish_blog_post.json",
+      "sha256": "0a7c34b285906f5cc34cef8c75b519dfe5252cadea705029d64c8449c6815ac7"
+    }
+  ],
+  "indexHash": "31141614506752c7edcbb9f9072cc1aae00a6d8d765db42cc8f2fa7aa3b81edb"
+}

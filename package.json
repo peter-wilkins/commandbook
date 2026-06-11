@@ -7,6 +7,7 @@
     "commandbook": "./src/cli/commandbook.js"
   },
   "scripts": {
+    "build:command-index": "node scripts/build-command-index.js",
     "test": "node --test"
   },
   "engines": {
