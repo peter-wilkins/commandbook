@@ -21,31 +21,38 @@
   }
 
   async function loadJson(path, fallbackUrl) {
-    if (window.FieldRelayNative && typeof window.FieldRelayNative.invoke === "function") {
+    const hasNativeBridge = window.FieldRelayNative && typeof window.FieldRelayNative.invoke === "function";
+    if (hasNativeBridge) {
       const runtimeAsset = invoke({
         op: "read_runtime_asset",
         path: path.replace(/^\.\//, "")
       });
       if (runtimeAsset.ok) return JSON.parse(runtimeAsset.body);
+
+      const response = invoke({
+        op: "fetch",
+        method: "GET",
+        url: fallbackUrl,
+        headers: { "Accept": "application/json" }
+      });
+      if (!response.ok) {
+        throw new Error(`Fetch failed: HTTP ${response.status}. ${response.body || ""}`.trim());
+      }
+      return JSON.parse(response.body);
     }
 
     try {
       const local = await fetch(path, { cache: "no-store" });
       if (local.ok) return local.json();
     } catch (_) {
-      // Fall through to native fetch. Android's file:// fetch support varies by WebView.
+      // Fall through to the public URL when running outside the Android shell.
     }
 
-    const response = invoke({
-      op: "fetch",
-      method: "GET",
-      url: fallbackUrl,
-      headers: { "Accept": "application/json" }
-    });
+    const response = await fetch(fallbackUrl, { cache: "no-store" });
     if (!response.ok) {
-      throw new Error(`Fetch failed: HTTP ${response.status}. ${response.body || ""}`.trim());
+      throw new Error(`Fetch failed: HTTP ${response.status}`);
     }
-    return JSON.parse(response.body);
+    return response.json();
   }
 
   async function loadCommandIndex() {
