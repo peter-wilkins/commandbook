@@ -54,3 +54,33 @@ test('CLI prints latest run status from the run store', async () => {
     await rm(root, { recursive: true, force: true })
   }
 })
+
+test('CLI resumes the latest open run by default', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'commandbook-cli-resume-'))
+  try {
+    const store = new FileRunStore(root)
+    await store.put('runs/example/2026-06-08T09-00-00-000Z_test.json', {
+      runId: '2026-06-08T09-00-00-000Z_test',
+      runKey: 'runs/example/2026-06-08T09-00-00-000Z_test.json',
+      command: 'example',
+      status: 'paused_for_human',
+      facts: {},
+      goal: {},
+      queue: [],
+      stack: [],
+      completed: [],
+      inProgress: [],
+      humanRequirements: [{ id: 'check_result', prompt: 'Check the result.' }],
+      approvals: {},
+      receipts: [],
+      failures: []
+    })
+
+    const { stdout } = await execFileAsync('node', [cli, 'resume', '--store-dir', root])
+
+    assert.match(stdout, /status: complete/)
+    assert.match(stdout, /run: runs\/example\/2026-06-08T09-00-00-000Z_test\.json/)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})

@@ -68,6 +68,28 @@ export async function resumeRunsForEvent({
   return resumed
 }
 
+export async function resumeRun({
+  runKey,
+  cwd = process.cwd(),
+  storeRoot = path.join(cwd, '.commandbook'),
+  recipesDir = defaultRecipesDir,
+  now = () => new Date(),
+  shell = runShell
+}) {
+  const store = new FileRunStore(storeRoot)
+  const ctx = await store.get(runKey)
+  if (!ctx) throw new Error(`Run not found: ${runKey}`)
+
+  const handlers = createHandlers()
+  const adapters = createAdapters({ cwd, store, handlers, shell, now, recipesDir })
+  return runContext({
+    ...ctx,
+    status: 'running',
+    humanRequirements: [],
+    inProgress: []
+  }, adapters)
+}
+
 function createHandlers() {
   return new Map([
     ...createBlogHandlers(),

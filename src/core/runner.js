@@ -32,6 +32,17 @@ export async function runContext(initialContext, adapters) {
 
     try {
       ctx = await handler(ctx, item, adapters)
+      if (PAUSED_STATUSES.has(ctx.status)) {
+        ctx = {
+          ...ctx,
+          queue: queueStartsWith(ctx.queue, item) ? ctx.queue : [item, ...ctx.queue],
+          stack: ctx.stack.slice(0, -1),
+          inProgress: []
+        }
+        await checkpoint(ctx, adapters)
+        break
+      }
+
       ctx = {
         ...ctx,
         completed: [
@@ -54,6 +65,11 @@ export async function runContext(initialContext, adapters) {
 
   await checkpoint(ctx, adapters)
   return ctx
+}
+
+function queueStartsWith(queue, item) {
+  const [first] = queue
+  return first && first.op === item.op && (first.phase ?? 'enter') === (item.phase ?? 'enter')
 }
 
 async function checkpoint(ctx, adapters) {

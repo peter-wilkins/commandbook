@@ -10,6 +10,7 @@ commandbook list runs
 commandbook list running
 commandbook list events
 commandbook status [run-key]
+commandbook resume [run-key]
 commandbook help [command]
 commandbook help [command] --long
 commandbook emit wifi.available --fact network_kind=wifi
@@ -25,6 +26,10 @@ commandbook emit wifi.available --fact network_kind=wifi
 
 `status` prints the latest run by default, or a specific run if given a key or
 run id suffix.
+
+`resume` continues the latest non-terminal run by default, or a specific run if
+given a key or run id suffix. A paused operation remains queued, so the next run
+rechecks the world instead of assuming the human changed it correctly.
 
 `emit <event-type>` appends a runtime event and wakes paused runs that subscribed
 to that event.

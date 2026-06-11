@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { FileEventStore, createRuntimeEvent } from '../adapters/event-store.js'
 import { FileRunStore } from '../adapters/file-run-store.js'
 import { listRecipes, loadRecipe } from '../core/recipes.js'
-import { defaultRecipesDir, resumeRunsForEvent, runCommand } from '../index.js'
+import { defaultRecipesDir, resumeRun, resumeRunsForEvent, runCommand } from '../index.js'
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 
@@ -44,6 +44,11 @@ async function main() {
 
   if (command === 'status') {
     await printStatus(args)
+    return
+  }
+
+  if (command === 'resume') {
+    await resumeCommand(args)
     return
   }
 
@@ -167,17 +172,31 @@ async function listRuns(args, { onlyRunning = false } = {}) {
 async function printStatus(args) {
   const store = createStore(args)
   const runs = await loadRuns(store)
-  const target = args._?.[0]
-  const selected = target
-    ? runs.find(({ key }) => key === target || key.endsWith(`/${target}`))
-    : runs.at(-1)
+  const selected = selectRun(runs, args._?.[0]) ?? null
 
   if (!selected) {
-    console.log(target ? `No run found for ${target}` : 'No runs found.')
+    console.log(args._?.[0] ? `No run found for ${args._[0]}` : 'No runs found.')
     return
   }
 
   printRunSummary(selected.ctx)
+}
+
+async function resumeCommand(args) {
+  const store = createStore(args)
+  const runs = await loadRuns(store)
+  const selected = selectRun(runs, args._?.[0], { preferOpen: true })
+  if (!selected) throw new Error(args._?.[0] ? `No run found for ${args._[0]}` : 'No paused or running runs found.')
+
+  const runCwd = args.repo ?? process.cwd()
+  const result = await resumeRun({
+    runKey: selected.key,
+    cwd: runCwd,
+    storeRoot: args.storeDir ?? path.join(runCwd, '.commandbook'),
+    recipesDir: args.recipesDir ?? path.join(projectRoot, 'recipes')
+  })
+  printRunSummary(result)
+  if (result.status === 'failed') process.exitCode = 1
 }
 
 async function printCommandHelp(command, args) {
@@ -251,6 +270,12 @@ function isRunningStatus(status) {
   return !['complete', 'failed', 'cancelled', 'stopped_cleanly'].includes(status)
 }
 
+function selectRun(runs, target, { preferOpen = false } = {}) {
+  if (target) return runs.find(({ key }) => key === target || key.endsWith(`/${target}`))
+  if (preferOpen) return [...runs].reverse().find(({ ctx }) => isRunningStatus(ctx.status))
+  return runs.at(-1)
+}
+
 function printHelp() {
   console.log(`Commandbook
 
@@ -260,6 +285,7 @@ Usage:
   commandbook emit wifi.available --fact network_kind=wifi
   commandbook runs [--store-dir .commandbook]
   commandbook status [run-key]
+  commandbook resume [run-key]
   commandbook help [command] [--long]
   commandbook configure_git_identity --name "Your Name" --email you@example.com --yes
   commandbook git_push_current_branch --yes

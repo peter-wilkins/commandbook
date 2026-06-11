@@ -34,8 +34,8 @@ async function androidDetectDevice(ctx, _item, adapters) {
         {
           id: 'android_no_device',
           title: 'No Android Device Connected',
-          prompt: 'Please connect your Android dev phone with USB debugging enabled, then re-run the command.',
-          resumeHint: 'Connect device and re-run: commandbook install_taptap'
+          prompt: 'Please connect your Android dev phone with USB debugging enabled, then resume the command.',
+          resumeHint: 'Connect device and run: commandbook resume'
         }
       ]
     }
@@ -84,8 +84,8 @@ async function androidCheckTapTapInstalled(ctx, _item, adapters) {
       {
         id: 'taptap_apk_not_installed',
         title: 'TapTap APK Not Installed',
-        prompt: `TapTap is not installed on the device. I have opened the download page (${url}) on your phone. Please download and install the APK, then re-run the command.`,
-        resumeHint: 'Install the APK on the phone and re-run: commandbook install_taptap'
+        prompt: `TapTap is not installed on the device. I have opened the download page (${url}) on your phone. Please download and install the APK, then resume the command.`,
+        resumeHint: 'Install the APK on the phone and run: commandbook resume'
       }
     ]
   }
@@ -116,8 +116,8 @@ async function androidEnsureTapTapAccessibility(ctx, _item, adapters) {
       {
         id: 'taptap_accessibility_disabled',
         title: 'TapTap Accessibility Service Disabled',
-        prompt: 'TapTap accessibility service is disabled. I have opened the accessibility settings on the device. Please turn on the TapTap service, then re-run the command.',
-        resumeHint: 'Enable the accessibility service and re-run: commandbook install_taptap'
+        prompt: 'TapTap accessibility service is disabled. I have opened the accessibility settings on the device. Please turn on the TapTap service, then resume the command.',
+        resumeHint: 'Enable the accessibility service and run: commandbook resume'
       }
     ]
   }
@@ -173,8 +173,8 @@ async function androidPromptShortcutConfiguration(ctx, _item, adapters) {
       {
         id: 'taptap_shortcut_not_configured',
         title: 'Configure TapTap double-tap action',
-        prompt: 'Please configure TapTap on the device to trigger the "Field Relay Capture" shortcut on Double Tap. Once configured, re-run with --yes.',
-        resumeHint: 'Configure the double-tap action in TapTap and run: commandbook install_taptap --yes'
+        prompt: 'Please configure TapTap on the device to trigger the "Field Relay Capture" shortcut on Double Tap. Once configured, resume the command.',
+        resumeHint: 'Configure the double-tap action in TapTap and run: commandbook resume'
       }
     ]
   }
