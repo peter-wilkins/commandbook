@@ -1,5 +1,6 @@
 {
   "schema": "commandbook.fieldrelay.web_runtime_manifest.v1",
+  "runtimeVersion": 2,
   "assets": [
     {
       "path": "index.html",

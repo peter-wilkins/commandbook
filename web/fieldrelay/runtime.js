@@ -1,5 +1,6 @@
 (function () {
   const commandIndexUrl = "https://raw.githubusercontent.com/peter-wilkins/commandbook/main/command-index.json";
+  const commandbookHeadUrl = "https://api.github.com/repos/peter-wilkins/commandbook/commits/main";
   const pinnedCommandKeys = ["livewind", "deepwater"];
   const readOnlyCommandKeys = new Set(["livewind", "deepwater"]);
   const usageStorageKey = "fieldrelay.browserlab.usage.v1";
@@ -8,6 +9,7 @@
   const commandListEl = document.getElementById("command-list");
   const statusLineEl = document.getElementById("status-line");
   const openConversationEl = document.getElementById("open-conversation");
+  let queuedRunKey = commandKey(new URLSearchParams(window.location.search).get("run") || "");
   const resultCard = document.getElementById("result-card");
   const resultLabels = [
     document.getElementById("result-primary-label"),
@@ -23,10 +25,18 @@
   ];
 
   let commandIndexState = null;
+  let statusVersion = 0;
 
   function setStatus(message, isError) {
+    statusVersion += 1;
     statusLineEl.textContent = message;
     statusLineEl.classList.toggle("error", Boolean(isError));
+    return statusVersion;
+  }
+
+  function setStatusIfCurrent(version, message, isError) {
+    if (version !== statusVersion) return;
+    setStatus(message, isError);
   }
 
   function invoke(payload) {
@@ -75,6 +85,32 @@
     return loadJson("./command-index.json", commandIndexUrl);
   }
 
+  async function loadGitHubHead() {
+    const hasNativeBridge = window.FieldRelayNative && typeof window.FieldRelayNative.invoke === "function";
+    if (hasNativeBridge) {
+      const response = invoke({
+        op: "fetch",
+        method: "GET",
+        url: commandbookHeadUrl,
+        headers: {
+          "Accept": "application/vnd.github+json",
+          "User-Agent": "FieldRelay"
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Fetch failed: HTTP ${response.status}. ${response.body || ""}`.trim());
+      }
+      return JSON.parse(response.body);
+    }
+
+    const response = await fetch(commandbookHeadUrl, {
+      cache: "no-store",
+      headers: { "Accept": "application/vnd.github+json" }
+    });
+    if (!response.ok) throw new Error(`Fetch failed: HTTP ${response.status}`);
+    return response.json();
+  }
+
   async function loadRecipe(commandIndex, command) {
     const recipeUrl = `${commandIndex.rawBaseUrl.replace(/\/$/, "")}/${command.recipePath}`;
     return loadJson(`./${command.recipePath.split("/").pop()}`, recipeUrl);
@@ -89,6 +125,28 @@
     if (key === "livewind") return "Live wind";
     if (key === "deepwater") return "Deep water";
     return String(name || "").replace(/_/g, " ");
+  }
+
+  function shortHash(value) {
+    return String(value || "").slice(0, 7);
+  }
+
+  function commandbookFallbackStatus(commandIndex) {
+    return commandIndex.indexHash
+      ? `Commandbook index ${shortHash(commandIndex.indexHash)}`
+      : "Commandbook ready";
+  }
+
+  async function updateCommandbookGitStatus(commandIndex, version) {
+    try {
+      const head = await loadGitHubHead();
+      const sha = shortHash(head.sha);
+      if (sha) {
+        setStatusIfCurrent(version, `Commandbook main ${sha}`);
+      }
+    } catch (_) {
+      setStatusIfCurrent(version, commandbookFallbackStatus(commandIndex));
+    }
   }
 
   function loadUsage() {
@@ -128,6 +186,10 @@
 
     renderCommandList(pinnedListEl, pinned, "No pinned commands found.");
     renderCommandList(commandListEl, frequent, "No other commands found.");
+  }
+
+  function findCommandByKey(commandIndex, key) {
+    return (commandIndex.commands || []).find((command) => commandKey(command.name) === key);
   }
 
   function renderCommandList(targetEl, commands, emptyText) {
@@ -176,6 +238,29 @@
     }
     renderDryRun(command);
   }
+
+  function runQueuedCommand() {
+    if (!queuedRunKey || !commandIndexState) return;
+    const key = queuedRunKey;
+    queuedRunKey = "";
+    const command = findCommandByKey(commandIndexState, key);
+    if (!command) {
+      setStatus(`Unknown command: ${key}`, true);
+      return;
+    }
+    if (!readOnlyCommandKeys.has(commandKey(command.name))) {
+      renderDryRun(command);
+      return;
+    }
+    incrementUsage(command);
+    renderCommands(commandIndexState);
+    runCommand(commandIndexState, command);
+  }
+
+  window.FieldRelayRunCommand = function (commandName) {
+    queuedRunKey = commandKey(commandName);
+    runQueuedCommand();
+  };
 
   function renderWind(result) {
     renderResult([
@@ -282,7 +367,9 @@
       setStatus("Loading Commandbook commands...");
       const commandIndex = await loadCommandIndex();
       renderCommands(commandIndex);
-      setStatus(`Loaded ${commandIndex.commands.length} commands.`);
+      const versionStatus = setStatus(commandbookFallbackStatus(commandIndex));
+      if (!queuedRunKey) updateCommandbookGitStatus(commandIndex, versionStatus);
+      runQueuedCommand();
     } catch (error) {
       pinnedListEl.textContent = "Pinned commands unavailable.";
       commandListEl.textContent = "Command list unavailable.";

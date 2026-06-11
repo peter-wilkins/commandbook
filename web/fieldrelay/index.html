@@ -47,7 +47,7 @@
 
     .header-row {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       gap: 12px;
     }
@@ -170,14 +170,30 @@
     }
 
     button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      min-width: 44px;
+      height: 44px;
       min-height: 44px;
       border: 0;
       border-radius: 8px;
-      padding: 0 14px;
+      padding: 0;
       background: var(--green);
       color: #fff;
       font: inherit;
       font-weight: 700;
+    }
+
+    button svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
   </style>
 </head>
@@ -187,9 +203,12 @@
       <div class="header-row">
         <div class="header-copy">
           <h1>Browser Lab</h1>
-          <p class="muted">Pinned links for fast read-only commands. Use Field Relay Lab for conversation.</p>
         </div>
-        <button id="open-conversation" type="button">Field Relay Lab</button>
+        <button id="open-conversation" type="button" aria-label="Field Relay Lab" title="Field Relay Lab">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 5h16v11H8l-4 4V5z"></path>
+          </svg>
+        </button>
       </div>
       <p class="muted" id="status-line">Ready.</p>
     </header>
