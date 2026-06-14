@@ -141,3 +141,48 @@ test('Field Relay browser coffee grinder runs deepwater recipe', async () => {
     JSON.stringify(['fetch_text', 'extract_deepwater_windows'])
   )
 })
+
+test('Field Relay browser coffee grinder prepares runninglate dry run', async () => {
+  const sandbox = { console }
+  sandbox.window = sandbox
+  const source = await readFile(new URL('../web/fieldrelay/coffee-grinder.js', import.meta.url), 'utf8')
+  vm.runInNewContext(source, sandbox)
+
+  const grinder = sandbox.CommandbookCoffeeGrinder
+  const recipe = {
+    queue: [
+      {
+        op: 'draft_running_late_message',
+        defaults: {
+          channel: 'whatsapp_or_sms'
+        },
+        outputFact: 'runningLateDraft'
+      }
+    ]
+  }
+
+  const ctx = grinder.createRunContext({
+    command: 'runninglate',
+    recipe,
+    args: {
+      contact: 'Jane',
+      destination: 'home',
+      eta: '15 minutes',
+      message: 'Traffic is slow.'
+    },
+    now: new Date('2026-06-14T12:00:00Z')
+  })
+  const result = await grinder.runContext(
+    ctx,
+    grinder.createFieldRelayAdapters({ invoke: () => ({ ok: true }) })
+  )
+
+  assert.equal(result.status, 'complete')
+  assert.equal(result.facts.runningLateDraft.mode, 'dry_run_only')
+  assert.equal(result.facts.runningLateDraft.recipient, 'Jane')
+  assert.equal(result.facts.runningLateDraft.sendEnabled, false)
+  assert.equal(
+    result.facts.runningLateDraft.messageText,
+    "I'm running late to home. ETA 15 minutes. Traffic is slow."
+  )
+})
