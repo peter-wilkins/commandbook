@@ -5,43 +5,41 @@ import path from 'node:path'
 import test from 'node:test'
 import { runCommand } from '../src/index.js'
 
-test('runninglate prepares a dry-run message without sending', async () => {
+test('runninglate requests WhatsApp send on trusted test channel by default', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'commandbook-runninglate-'))
   try {
     const result = await runCommand({
       command: 'runninglate',
-      args: {
-        contact: 'Jane',
-        destination: 'home',
-        eta: '15 minutes',
-        message: 'Traffic is slow.'
-      },
+      args: {},
       storeRoot: path.join(root, '.commandbook'),
       now: () => new Date('2026-06-14T12:00:00Z')
     })
 
     assert.equal(result.status, 'complete')
-    assert.deepEqual(result.goal.effects, [])
-    assert.equal(result.facts.runningLateDraft.mode, 'dry_run_only')
-    assert.equal(result.facts.runningLateDraft.recipient, 'Jane')
-    assert.equal(result.facts.runningLateDraft.channel, 'whatsapp_or_sms')
+    assert.deepEqual(result.goal.effects, ['whatsapp_message_send_requested'])
+    assert.equal(result.facts.runningLateMessage.mode, 'trusted_test_send_request')
+    assert.equal(result.facts.runningLateMessage.recipient, 'self')
+    assert.equal(result.facts.runningLateMessage.channel, 'whatsapp')
     assert.equal(
-      result.facts.runningLateDraft.messageText,
-      "I'm running late to home. ETA 15 minutes. Traffic is slow."
+      result.facts.runningLateMessage.messageText,
+      'Running late, ETA 10 minutes.'
     )
-    assert.equal(result.facts.runningLateDraft.sendEnabled, false)
-    assert.equal(result.receipts.at(-1).result, 'draft_prepared')
+    assert.equal(result.facts.runningLateMessage.sendEnabled, true)
+    assert.equal(result.facts.runningLateMessage.requiresConfirmation, false)
+    assert.equal(result.facts.runningLateMessage.smsFallback, false)
+    assert.equal(result.receipts.at(-1).result, 'send_requested')
   } finally {
     await rm(root, { recursive: true, force: true })
   }
 })
 
-test('runninglate pauses when contact is missing', async () => {
+test('runninglate pauses when contact is explicitly blanked', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'commandbook-runninglate-missing-'))
   try {
     const result = await runCommand({
       command: 'runninglate',
       args: {
+        contact: '',
         eta: '15 minutes'
       },
       storeRoot: path.join(root, '.commandbook')

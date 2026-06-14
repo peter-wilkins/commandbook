@@ -20,19 +20,28 @@ Intent: tell someone the driver is running late.
 
 Arguments:
 
-- `contact`: required person or group.
+- `contact`: person or group. V0 defaults to Peter's own WhatsApp test channel.
 - `destination`: optional destination; default can come from active navigation.
+- `eta`: optional ETA text. V0 defaults to `10 minutes`.
 - `message`: optional extra text.
 
-Dry run must show:
+V0 behaviour:
+
+- WhatsApp only.
+- No SMS fallback.
+- No confirmation button for the trusted self-test channel.
+- Default message: `Running late, ETA 10 minutes.`
+
+The platform adapter must report whether WhatsApp actually sent the message or
+only opened a prefilled chat.
+
+Dry run for non-test channels must show:
 
 - recipient
 - channel
 - destination used
 - ETA or reason ETA is unavailable
 - exact message text
-
-First implementation may stop at dry run.
 
 ### `sendeta`
 
@@ -88,4 +97,3 @@ Mutations:
 Read-only commands can auto-run. Message, navigation, and call mutations need a
 dry run or confirmation. If safe confirmation is unavailable while moving, save
 the prepared action and ask later.
-

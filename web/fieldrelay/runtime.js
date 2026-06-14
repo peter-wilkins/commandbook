@@ -3,6 +3,7 @@
   const commandbookHeadUrl = "https://api.github.com/repos/peter-wilkins/commandbook/commits/main";
   const pinnedCommandKeys = ["livewind", "deepwater"];
   const readOnlyCommandKeys = new Set(["livewind", "deepwater"]);
+  const trustedTestCommandKeys = new Set(["runninglate"]);
   const usageStorageKey = "fieldrelay.browserlab.usage.v1";
 
   const pinnedListEl = document.getElementById("pinned-command-list");
@@ -124,6 +125,7 @@
     const key = commandKey(name);
     if (key === "livewind") return "Live wind";
     if (key === "deepwater") return "Deep water";
+    if (key === "runninglate") return "Running late";
     return String(name || "").replace(/_/g, " ");
   }
 
@@ -218,9 +220,12 @@
 
       const rawName = document.createElement("p");
       rawName.className = "muted";
-      rawName.textContent = readOnlyCommandKeys.has(commandKey(command.name))
+      const key = commandKey(command.name);
+      rawName.textContent = readOnlyCommandKeys.has(key)
         ? "Read-only. Runs immediately."
-        : "Dry run first.";
+        : trustedTestCommandKeys.has(key)
+          ? "Trusted test. Runs immediately."
+          : "Dry run first.";
 
       row.append(link, description, rawName);
       targetEl.append(row);
@@ -232,7 +237,7 @@
     const key = commandKey(command.name);
     incrementUsage(command);
     renderCommands(commandIndexState);
-    if (readOnlyCommandKeys.has(key)) {
+    if (canRunImmediately(key)) {
       runCommand(commandIndexState, command);
       return;
     }
@@ -248,7 +253,7 @@
       setStatus(`Unknown command: ${key}`, true);
       return;
     }
-    if (!readOnlyCommandKeys.has(commandKey(command.name))) {
+    if (!canRunImmediately(commandKey(command.name))) {
       renderDryRun(command);
       return;
     }
@@ -277,6 +282,16 @@
       ["WINDOWS", result.summary],
       ["THRESHOLD", `${result.thresholdMeters} m`],
       ["DATE", result.sourceDate]
+    ]);
+  }
+
+  function renderRunningLate(result) {
+    const delivery = result.delivery || {};
+    renderResult([
+      ["MESSAGE", result.messageText || "No message text"],
+      ["RECIPIENT", result.recipient || "unknown"],
+      ["CHANNEL", result.channel || "unknown"],
+      ["STATUS", delivery.status || "requested"]
     ]);
   }
 
@@ -336,6 +351,12 @@
         } else if (result.facts.deepWater) {
           renderDeepWater(result.facts.deepWater);
           setStatus(result.facts.deepWater.summary);
+        } else if (result.facts.runningLateMessage) {
+          const delivery = deliverRunningLateMessage(result.facts.runningLateMessage);
+          renderRunningLate({ ...result.facts.runningLateMessage, delivery });
+          setStatus(delivery.status === "opened_whatsapp_prefilled"
+            ? "WhatsApp opened with the message ready."
+            : `Running late message: ${delivery.status || "requested"}`);
         } else {
           renderGenericResult(command.name, result);
         }
@@ -343,6 +364,29 @@
         setStatus(`Error: ${error.message || error}`, true);
       }
     }, 20);
+  }
+
+  function canRunImmediately(key) {
+    return readOnlyCommandKeys.has(key) || trustedTestCommandKeys.has(key);
+  }
+
+  function deliverRunningLateMessage(message) {
+    const response = invoke({
+      op: "send_whatsapp_message",
+      recipient: message.recipient,
+      channel: message.channel,
+      messageText: message.messageText,
+      testChannel: Boolean(message.testChannel),
+      noSmsFallback: message.smsFallback === false
+    });
+    if (!response.ok) {
+      throw new Error(response.body || response.error || "WhatsApp adapter failed.");
+    }
+    try {
+      return JSON.parse(response.body || "{}");
+    } catch (_) {
+      return { status: response.body || "requested" };
+    }
   }
 
   function openConversation(text) {

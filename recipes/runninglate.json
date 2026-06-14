@@ -1,22 +1,26 @@
 {
   "name": "runninglate",
-  "description": "Prepare a safe dry-run message telling someone the driver is running late.",
-  "usage": "commandbook runninglate --contact Jane --eta \"15 minutes\" --destination home",
+  "description": "Request a WhatsApp running-late message for the trusted driving-mode test channel.",
+  "usage": "commandbook runninglate --eta \"10 minutes\"",
   "defaultScope": "driving_mode",
   "goal": {
-    "facts": ["runningLateDraft"],
-    "effects": []
+    "facts": ["runningLateMessage"],
+    "effects": ["whatsapp_message_send_requested"]
   },
   "docs": [
     "docs/examples/driving-mode.md"
   ],
   "queue": [
     {
-      "op": "draft_running_late_message",
+      "op": "prepare_running_late_message",
       "defaults": {
-        "channel": "whatsapp_or_sms"
+        "contact": "self",
+        "channel": "whatsapp",
+        "eta": "10 minutes",
+        "autoSend": true,
+        "testChannel": true
       },
-      "outputFact": "runningLateDraft"
+      "outputFact": "runningLateMessage"
     }
   ]
 }

@@ -2,11 +2,12 @@ import { addReceipt } from '../core/context.js'
 
 export function createDrivingHandlers() {
   return new Map([
-    ['draft_running_late_message', draftRunningLateMessage]
+    ['draft_running_late_message', prepareRunningLateMessage],
+    ['prepare_running_late_message', prepareRunningLateMessage]
   ])
 }
 
-async function draftRunningLateMessage(ctx, item, adapters) {
+async function prepareRunningLateMessage(ctx, item, adapters) {
   const args = { ...(item.defaults ?? {}), ...(ctx.facts.commandArgs ?? {}) }
   const contact = clean(args.contact)
 
@@ -28,32 +29,37 @@ async function draftRunningLateMessage(ctx, item, adapters) {
 
   const destination = clean(args.destination) ?? 'current destination'
   const eta = clean(args.eta) ?? clean(args.etaText) ?? 'ETA unavailable'
-  const channel = clean(args.channel) ?? 'whatsapp_or_sms'
+  const channel = clean(args.channel) ?? 'whatsapp'
   const extra = clean(args.message)
+  const autoSend = booleanArg(args.autoSend)
   const messageText = buildMessage({ destination, eta, extra })
-  const outputFact = item.outputFact ?? 'runningLateDraft'
-  const draft = {
-    mode: 'dry_run_only',
-    action: 'prepare_message',
+  const outputFact = item.outputFact ?? 'runningLateMessage'
+  const request = {
+    mode: autoSend ? 'trusted_test_send_request' : 'draft_only',
+    action: autoSend ? 'send_message' : 'prepare_message',
     recipient: contact,
     channel,
     destination,
     eta,
     messageText,
-    sendEnabled: false,
-    requiresConfirmation: true,
-    safety: 'No message was sent. This command only prepares the draft.'
+    sendEnabled: autoSend,
+    requiresConfirmation: !autoSend,
+    smsFallback: false,
+    testChannel: booleanArg(args.testChannel),
+    safety: autoSend
+      ? 'Trusted test route requested WhatsApp delivery through the platform adapter. No SMS fallback.'
+      : 'No message was sent. This command only prepares the draft.'
   }
 
   return addReceipt({
     ...ctx,
     facts: {
       ...ctx.facts,
-      [outputFact]: draft
+      [outputFact]: request
     }
   }, {
-    op: 'draft_running_late_message',
-    result: 'draft_prepared',
+    op: item.op,
+    result: autoSend ? 'send_requested' : 'draft_prepared',
     outputFact,
     recipient: contact,
     channel
@@ -65,8 +71,8 @@ function buildMessage({ destination, eta, extra }) {
     ? ''
     : ` to ${destination}`
   const base = eta === 'ETA unavailable'
-    ? `I'm running late${destinationText}.`
-    : `I'm running late${destinationText}. ETA ${eta}.`
+    ? `Running late${destinationText}.`
+    : `Running late${destinationText}, ETA ${eta}.`
 
   return extra ? `${base} ${extra}` : base
 }
@@ -75,4 +81,10 @@ function clean(value) {
   if (value === undefined || value === null || value === true) return null
   const text = String(value).trim()
   return text.length > 0 ? text : null
+}
+
+function booleanArg(value) {
+  if (value === true) return true
+  if (value === false || value === undefined || value === null) return false
+  return ['1', 'true', 'yes', 'y'].includes(String(value).trim().toLowerCase())
 }

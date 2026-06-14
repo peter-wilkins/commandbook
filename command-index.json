@@ -62,14 +62,14 @@
     },
     {
       "name": "runninglate",
-      "description": "Prepare a safe dry-run message telling someone the driver is running late.",
-      "usage": "commandbook runninglate --contact Jane --eta \"15 minutes\" --destination home",
+      "description": "Request a WhatsApp running-late message for the trusted driving-mode test channel.",
+      "usage": "commandbook runninglate --eta \"10 minutes\"",
       "defaultScope": "driving_mode",
       "docs": [
         "docs/examples/driving-mode.md"
       ],
       "recipePath": "recipes/runninglate.json",
-      "sha256": "6ce32bccd3fbf9611ce1ce35494967642e3417c85bf774df4a315c10d40678f4"
+      "sha256": "4235b219cbb6f7c8062125d0d4dab91a8345348b9f22ccbc57c02f417bc434d9"
     },
     {
       "name": "simulate_water_trip_logger",
@@ -96,5 +96,5 @@
       "sha256": "0a7c34b285906f5cc34cef8c75b519dfe5252cadea705029d64c8449c6815ac7"
     }
   ],
-  "indexHash": "09b4ba7ac774a3ed3894c20d2af7a3995c72fc62464dd2029665b89331b39d05"
+  "indexHash": "076df441d586a1fa4eec6cc0745ea42314ef4168765cd5ddae7fc1414cc4cd12"
 }

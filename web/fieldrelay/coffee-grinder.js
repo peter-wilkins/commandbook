@@ -120,7 +120,8 @@
         ["fetch_json", fetchJsonHandler],
         ["extract_weatherfile_live_wind", extractWeatherfileLiveWindHandler],
         ["extract_deepwater_windows", extractDeepwaterWindowsHandler],
-        ["draft_running_late_message", draftRunningLateMessageHandler]
+        ["draft_running_late_message", prepareRunningLateMessageHandler],
+        ["prepare_running_late_message", prepareRunningLateMessageHandler]
       ])
     };
   }
@@ -299,7 +300,7 @@
     };
   }
 
-  async function draftRunningLateMessageHandler(ctx, item) {
+  async function prepareRunningLateMessageHandler(ctx, item) {
     const args = { ...(item.defaults || {}), ...(ctx.facts.commandArgs || {}) };
     const contact = clean(args.contact);
 
@@ -321,29 +322,34 @@
 
     const destination = clean(args.destination) || "current destination";
     const eta = clean(args.eta) || clean(args.etaText) || "ETA unavailable";
-    const channel = clean(args.channel) || "whatsapp_or_sms";
+    const channel = clean(args.channel) || "whatsapp";
     const extra = clean(args.message);
+    const autoSend = booleanArg(args.autoSend);
     const destinationText = destination === "current destination" ? "" : ` to ${destination}`;
     const base = eta === "ETA unavailable"
-      ? `I'm running late${destinationText}.`
-      : `I'm running late${destinationText}. ETA ${eta}.`;
-    const outputFact = item.outputFact || "runningLateDraft";
+      ? `Running late${destinationText}.`
+      : `Running late${destinationText}, ETA ${eta}.`;
+    const outputFact = item.outputFact || "runningLateMessage";
 
     return {
       ...ctx,
       facts: {
         ...ctx.facts,
         [outputFact]: {
-          mode: "dry_run_only",
-          action: "prepare_message",
+          mode: autoSend ? "trusted_test_send_request" : "draft_only",
+          action: autoSend ? "send_message" : "prepare_message",
           recipient: contact,
           channel,
           destination,
           eta,
           messageText: extra ? `${base} ${extra}` : base,
-          sendEnabled: false,
-          requiresConfirmation: true,
-          safety: "No message was sent. This command only prepares the draft."
+          sendEnabled: autoSend,
+          requiresConfirmation: !autoSend,
+          smsFallback: false,
+          testChannel: booleanArg(args.testChannel),
+          safety: autoSend
+            ? "Trusted test route requested WhatsApp delivery through the platform adapter. No SMS fallback."
+            : "No message was sent. This command only prepares the draft."
         }
       }
     };
@@ -513,6 +519,12 @@
     if (value === undefined || value === null || value === true) return null;
     const text = String(value).trim();
     return text.length > 0 ? text : null;
+  }
+
+  function booleanArg(value) {
+    if (value === true) return true;
+    if (value === false || value === undefined || value === null) return false;
+    return ["1", "true", "yes", "y"].includes(String(value).trim().toLowerCase());
   }
 
   function clone(value) {
