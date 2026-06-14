@@ -1,0 +1,22 @@
+{
+  "name": "runninglate",
+  "description": "Prepare a safe dry-run message telling someone the driver is running late.",
+  "usage": "commandbook runninglate --contact Jane --eta \"15 minutes\" --destination home",
+  "defaultScope": "driving_mode",
+  "goal": {
+    "facts": ["runningLateDraft"],
+    "effects": []
+  },
+  "docs": [
+    "docs/examples/driving-mode.md"
+  ],
+  "queue": [
+    {
+      "op": "draft_running_late_message",
+      "defaults": {
+        "channel": "whatsapp_or_sms"
+      },
+      "outputFact": "runningLateDraft"
+    }
+  ]
+}

@@ -61,6 +61,17 @@
       "sha256": "7b7c73b3fadaf046f06b9654c0bb0ff8c6a27f8e0130b05896a101c20422d6b5"
     },
     {
+      "name": "runninglate",
+      "description": "Prepare a safe dry-run message telling someone the driver is running late.",
+      "usage": "commandbook runninglate --contact Jane --eta \"15 minutes\" --destination home",
+      "defaultScope": "driving_mode",
+      "docs": [
+        "docs/examples/driving-mode.md"
+      ],
+      "recipePath": "recipes/runninglate.json",
+      "sha256": "6ce32bccd3fbf9611ce1ce35494967642e3417c85bf774df4a315c10d40678f4"
+    },
+    {
       "name": "simulate_water_trip_logger",
       "description": "Simulate a water-trip logger slice with local save, live ping, event pause, and resume.",
       "usage": "commandbook simulate_water_trip_logger --network offline --yes",
@@ -85,5 +96,5 @@
       "sha256": "0a7c34b285906f5cc34cef8c75b519dfe5252cadea705029d64c8449c6815ac7"
     }
   ],
-  "indexHash": "029fcc6c5931a03e919aeb67cddf6e2618f7a6d72409c42d094f051d50129028"
+  "indexHash": "09b4ba7ac774a3ed3894c20d2af7a3995c72fc62464dd2029665b89331b39d05"
 }
